@@ -34,9 +34,9 @@ Abre http://localhost:3000
 ## Estructura
 ```
 src/
-  app/                 # Rutas Next.js (login, donations, …)
-  components/          # UI reutilizable (Carlos)
-  lib/supabase/        # Clientes browser/server + middleware
+  app/                 # Rutas: /, /login, /donations, /donations/new
+  components/          # UI reutilizable (Carlos — MUN-7+)
+  lib/supabase/        # Clientes browser/server + middleware + env
   types/database.ts    # Contrato de tipos compartido
 supabase/
   migrations/          # SQL de esquema (Emilio)
@@ -46,6 +46,8 @@ docs/
   data-contract.md
   CONTRIBUTING.md
 ```
+
+Rutas base listas (stubs hasta MUN-7/MUN-12). Sin `NEXT_PUBLIC_SUPABASE_*` en `.env.local` los clientes fallan con un mensaje explícito.
 
 ## Por dónde empezar
 1. Abrir su épica en Linear y expandir subtareas.
