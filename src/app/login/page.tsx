@@ -3,7 +3,7 @@ import { LoginForm } from "@/components/login-form";
 
 export default function LoginPage() {
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-md flex-col justify-center gap-6 px-6 py-16">
+    <main className="mx-auto flex min-h-full w-full max-w-md flex-col justify-center gap-6 px-4 py-12 sm:px-6 sm:py-16">
       <div className="space-y-2">
         <p className="text-sm font-medium tracking-wide text-zinc-500 uppercase">
           FUNMIAVEN

@@ -11,6 +11,9 @@ import {
   subscribeDonations,
 } from "@/lib/donations/prototype-store";
 
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+
 type DonationDetailProps = {
   donationId: string;
 };
@@ -40,7 +43,7 @@ export function DonationDetail({ donationId }: DonationDetailProps) {
         <p className="text-sm text-zinc-600">No se encontró esta donación.</p>
         <Link
           href="/donations"
-          className="inline-block text-sm font-medium text-zinc-900 hover:underline"
+          className={`inline-block rounded-sm text-sm font-medium text-zinc-900 hover:underline ${focusRing}`}
         >
           Volver al listado
         </Link>
@@ -82,10 +85,10 @@ export function DonationDetail({ donationId }: DonationDetailProps) {
         />
       </dl>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <Link
           href={`/donations/${donation.id}/edit`}
-          className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+          className={`inline-flex items-center justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 ${focusRing}`}
         >
           Editar
         </Link>
@@ -93,13 +96,13 @@ export function DonationDetail({ donationId }: DonationDetailProps) {
           type="button"
           onClick={handleDelete}
           disabled={deleting}
-          className="rounded-md border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className={`rounded-md border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`}
         >
           {deleting ? "Eliminando…" : "Eliminar"}
         </button>
         <Link
           href="/donations"
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
+          className={`inline-flex items-center justify-center rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 ${focusRing}`}
         >
           Volver
         </Link>
