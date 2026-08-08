@@ -2,13 +2,12 @@ import Link from "next/link";
 
 export default function DonationsPage() {
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-4xl flex-col gap-6 px-6 py-10">
+    <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Donaciones</h1>
           <p className="text-sm text-zinc-600">
-            Placeholder para Carlos (MUN-12 / MUN-11). Listado vacío es válido:
-            no hay datos históricos.
+            Listado vacío al inicio: no hay donaciones históricas que mostrar.
           </p>
         </div>
         <Link
