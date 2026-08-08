@@ -2,38 +2,87 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import {
+  createDonation,
+  updateDonation,
+  type DonationInput,
+} from "@/lib/donations/prototype-store";
+import type { Donation } from "@/types/database";
 
 function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function NewDonationForm() {
+function toNullable(value: string) {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+type DonationFormProps = {
+  mode: "create" | "edit";
+  donationId?: string;
+  initial?: Donation;
+};
+
+export function DonationForm({ mode, donationId, initial }: DonationFormProps) {
   const router = useRouter();
-  const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState("USD");
-  const [donatedAt, setDonatedAt] = useState(todayIsoDate);
-  const [method, setMethod] = useState("");
-  const [concept, setConcept] = useState("");
-  const [notes, setNotes] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const [amount, setAmount] = useState(
+    initial ? String(initial.amount) : "",
+  );
+  const [currency, setCurrency] = useState(initial?.currency ?? "USD");
+  const [donatedAt, setDonatedAt] = useState(
+    initial?.donated_at ?? todayIsoDate(),
+  );
+  const [method, setMethod] = useState(initial?.method ?? "");
+  const [concept, setConcept] = useState(initial?.concept ?? "");
+  const [notes, setNotes] = useState(initial?.notes ?? "");
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError(null);
     setLoading(true);
-    setMessage(null);
 
-    // Prototipo MUN-7: UI navegable sin persistencia (MUN-11/MUN-12).
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    setMessage(
-      "Prototipo: el formulario es navegable. La persistencia en Supabase llega en MUN-11.",
-    );
-    setLoading(false);
+    const input: DonationInput = {
+      amount: Number(amount),
+      currency: currency.trim() || "USD",
+      donated_at: donatedAt,
+      method: toNullable(method),
+      concept: toNullable(concept),
+      notes: toNullable(notes),
+    };
 
-    window.setTimeout(() => {
-      router.push("/donations");
+    if (!Number.isFinite(input.amount) || input.amount < 0) {
+      setError("El monto debe ser un número válido mayor o igual a 0.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      if (mode === "create") {
+        const created = createDonation(input);
+        router.push(`/donations/${created.id}`);
+        router.refresh();
+        return;
+      }
+
+      if (!donationId) {
+        setError("Falta el identificador de la donación.");
+        return;
+      }
+
+      const updated = updateDonation(donationId, input);
+      if (!updated) {
+        setError("No se encontró la donación a editar.");
+        return;
+      }
+
+      router.push(`/donations/${updated.id}`);
       router.refresh();
-    }, 900);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -114,14 +163,19 @@ export function NewDonationForm() {
         />
       </label>
 
-      {message ? (
+      {error ? (
         <p
-          role="status"
-          className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
         >
-          {message}
+          {error}
         </p>
       ) : null}
+
+      <p className="text-xs text-zinc-500">
+        Prototipo local (localStorage). La integración con Supabase llega en
+        MUN-11.
+      </p>
 
       <div className="flex flex-wrap gap-2">
         <button
@@ -129,11 +183,21 @@ export function NewDonationForm() {
           disabled={loading}
           className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
-          {loading ? "Guardando…" : "Guardar (prototipo)"}
+          {loading
+            ? "Guardando…"
+            : mode === "create"
+              ? "Crear donación"
+              : "Guardar cambios"}
         </button>
         <button
           type="button"
-          onClick={() => router.push("/donations")}
+          onClick={() =>
+            router.push(
+              mode === "edit" && donationId
+                ? `/donations/${donationId}`
+                : "/donations",
+            )
+          }
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
         >
           Cancelar
