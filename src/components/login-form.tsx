@@ -1,8 +1,15 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
 import { createClient } from "@/lib/supabase/client";
+
+const fieldClassName =
+  "w-full min-h-[48px] rounded-lg border border-zinc-300 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
 
 function safeNextPath(next: string | null) {
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
@@ -31,6 +38,55 @@ function toLoginErrorMessage(error: {
   return "No se pudo iniciar sesión.";
 }
 
+function PasswordControl({
+  id,
+  value,
+  onChange,
+  shown,
+  onToggle,
+  "aria-describedby": describedBy,
+  "aria-invalid": invalid,
+}: {
+  id?: string;
+  value: string;
+  onChange: (value: string) => void;
+  shown: boolean;
+  onToggle: () => void;
+  "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
+}) {
+  return (
+    <div className="flex min-h-[48px] overflow-hidden rounded-lg border border-zinc-300 bg-surface focus-within:ring-[3px] focus-within:ring-brand">
+      <input
+        id={id}
+        type={shown ? "text" : "password"}
+        name="password"
+        autoComplete="current-password"
+        required
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        aria-describedby={describedBy}
+        aria-invalid={invalid}
+        className="min-h-[48px] min-w-0 flex-1 bg-transparent px-3 text-ink focus-visible:outline-none"
+      />
+      <button
+        type="button"
+        aria-pressed={shown}
+        aria-controls={id}
+        onClick={onToggle}
+        className="inline-flex min-h-[48px] shrink-0 items-center gap-2 px-3 font-bold text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand"
+      >
+        {shown ? (
+          <EyeOff aria-hidden className="size-5" />
+        ) : (
+          <Eye aria-hidden className="size-5" />
+        )}
+        {shown ? "Ocultar" : "Mostrar"}
+      </button>
+    </div>
+  );
+}
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,6 +94,7 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,12 +123,8 @@ export function LoginForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-3 rounded-lg border border-zinc-200 p-4"
-    >
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Email</span>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <Field id="email" label="Correo electrónico">
         <input
           type="email"
           name="email"
@@ -79,39 +132,28 @@ export function LoginForm() {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
-          placeholder="usuario@ejemplo.com"
+          className={fieldClassName}
         />
-      </label>
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Contraseña</span>
-        <input
-          type="password"
-          name="password"
-          autoComplete="current-password"
-          required
+      </Field>
+
+      <Field id="password" label="Contraseña">
+        <PasswordControl
           value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
+          onChange={setPassword}
+          shown={showPassword}
+          onToggle={() => setShowPassword((open) => !open)}
         />
-      </label>
+      </Field>
 
-      {error ? (
-        <p
-          role="alert"
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-        >
-          {error}
-        </p>
-      ) : null}
+      {error ? <Alert variant="error">{error}</Alert> : null}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-zinc-400"
-      >
-        {loading ? "Entrando…" : "Iniciar sesión"}
-      </button>
+      <Button type="submit" size="lg" loading={loading} className="w-full">
+        {loading ? "Entrando…" : "Entrar"}
+      </Button>
+
+      <p className="text-center text-ink-soft">
+        ¿Problemas para entrar? Pide ayuda a quien administra el sistema.
+      </p>
     </form>
   );
 }

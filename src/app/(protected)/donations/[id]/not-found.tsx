@@ -1,20 +1,20 @@
-import Link from "next/link";
-
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+import { FileQuestion, List } from "lucide-react";
+import { ButtonLink } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function DonationNotFound() {
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
-      <div className="space-y-4 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-8 text-center">
-        <p className="text-sm text-zinc-600">No se encontró esta donación.</p>
-        <Link
+    <main className="mx-auto flex w-full max-w-2xl flex-col px-4 py-8 sm:px-6 sm:py-10">
+      <Card className="flex flex-col items-center gap-4 px-5 py-10 text-center">
+        <FileQuestion aria-hidden className="size-12 text-accent" />
+        <p className="text-lg text-ink">No se encontró esta donación.</p>
+        <ButtonLink
           href="/donations"
-          className={`inline-block rounded-sm text-sm font-medium text-zinc-900 hover:underline ${focusRing}`}
+          icon={<List aria-hidden className="size-5" />}
         >
-          Volver al listado
-        </Link>
-      </div>
+          Volver a Donaciones
+        </ButtonLink>
+      </Card>
     </main>
   );
 }

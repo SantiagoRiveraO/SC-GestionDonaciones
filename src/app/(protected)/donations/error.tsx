@@ -1,7 +1,8 @@
 "use client";
 
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+import { House, RotateCw, TriangleAlert } from "lucide-react";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function DonationsError({
   retry,
@@ -10,17 +11,25 @@ export default function DonationsError({
   retry: () => void;
 }) {
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-4 py-8 sm:px-6 sm:py-10">
-      <p className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-600">
-        No se pudieron cargar las donaciones.
-      </p>
-      <button
-        type="button"
-        onClick={() => retry()}
-        className={`mx-auto rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 ${focusRing}`}
-      >
-        Reintentar
-      </button>
+    <main className="mx-auto flex w-full max-w-4xl flex-col px-4 py-8 sm:px-6 sm:py-10">
+      <Card className="flex flex-col items-center gap-4 px-5 py-10 text-center">
+        <TriangleAlert aria-hidden className="size-12 text-accent" />
+        <p className="text-lg text-ink">No se pudieron cargar las donaciones.</p>
+        <Button
+          type="button"
+          icon={<RotateCw aria-hidden className="size-5" />}
+          onClick={() => retry()}
+        >
+          Reintentar
+        </Button>
+        <ButtonLink
+          href="/"
+          variant="secondary"
+          icon={<House aria-hidden className="size-5" />}
+        >
+          Volver al inicio
+        </ButtonLink>
+      </Card>
     </main>
   );
 }
