@@ -100,7 +100,7 @@ export function DonationForm({ mode, donationId, initial }: DonationFormProps) {
           required
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          className="w-full rounded-md border border-zinc-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
           placeholder="0.00"
         />
       </label>
@@ -113,7 +113,7 @@ export function DonationForm({ mode, donationId, initial }: DonationFormProps) {
           required
           value={currency}
           onChange={(event) => setCurrency(event.target.value)}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          className="w-full rounded-md border border-zinc-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
         />
       </label>
 
@@ -125,7 +125,7 @@ export function DonationForm({ mode, donationId, initial }: DonationFormProps) {
           required
           value={donatedAt}
           onChange={(event) => setDonatedAt(event.target.value)}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          className="w-full rounded-md border border-zinc-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
         />
       </label>
 
@@ -136,7 +136,7 @@ export function DonationForm({ mode, donationId, initial }: DonationFormProps) {
           name="method"
           value={method}
           onChange={(event) => setMethod(event.target.value)}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          className="w-full rounded-md border border-zinc-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
           placeholder="Transferencia, efectivo…"
         />
       </label>
@@ -148,7 +148,7 @@ export function DonationForm({ mode, donationId, initial }: DonationFormProps) {
           name="concept"
           value={concept}
           onChange={(event) => setConcept(event.target.value)}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          className="w-full rounded-md border border-zinc-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
         />
       </label>
 
@@ -159,7 +159,7 @@ export function DonationForm({ mode, donationId, initial }: DonationFormProps) {
           rows={3}
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          className="w-full rounded-md border border-zinc-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
         />
       </label>
 
@@ -181,7 +181,7 @@ export function DonationForm({ mode, donationId, initial }: DonationFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
+          className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
           {loading
             ? "Guardando…"
@@ -198,7 +198,7 @@ export function DonationForm({ mode, donationId, initial }: DonationFormProps) {
                 : "/donations",
             )
           }
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
+          className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
         >
           Cancelar
         </button>
