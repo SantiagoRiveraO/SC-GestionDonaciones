@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { ChevronDown, ChevronUp, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { startTransition, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -119,9 +119,16 @@ export function DonationFilters({
             variant="secondary"
             aria-expanded={filtersOpen}
             aria-controls="donation-advanced-filters"
+            icon={
+              filtersOpen ? (
+                <ChevronUp aria-hidden className="size-5" />
+              ) : (
+                <ChevronDown aria-hidden className="size-5" />
+              )
+            }
             onClick={() => setFiltersOpen((open) => !open)}
           >
-            Más filtros
+            {filtersOpen ? "Ocultar filtros" : "Más filtros"}
           </Button>
           {filtersActive ? (
             <Button type="button" variant="secondary" onClick={clearFilters}>

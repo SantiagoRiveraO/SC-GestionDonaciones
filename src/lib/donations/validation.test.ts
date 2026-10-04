@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   localTodayIsoDate,
   parseDonationInput,
+  parseFlexibleAmount,
 } from "@/lib/donations/validation";
 
 function localDateOffset(days: number): string {
@@ -87,15 +88,49 @@ describe("parseDonationInput", () => {
   });
 
   it("rechaza decimales de más", () => {
-    const result = parseDonationInput({
-      ...validValues,
-      amount: "10.555",
+    expect(
+      parseDonationInput({ ...validValues, amount: "25,555" }),
+    ).toEqual({
+      ok: false,
+      fieldErrors: { amount: "Escribe el monto con números. Ejemplo: 25,50" },
     });
 
-    expect(result).toEqual({
+    expect(
+      parseDonationInput({ ...validValues, amount: "10.5555" }),
+    ).toEqual({
       ok: false,
-      fieldErrors: { amount: "Ingresa un monto válido." },
+      fieldErrors: { amount: "Escribe el monto con números. Ejemplo: 25,50" },
     });
+  });
+
+  it("acepta montos con coma, punto y separadores de miles", () => {
+    const cases: Array<[string, number]> = [
+      ["25,50", 25.5],
+      ["25.50", 25.5],
+      ["1.250,50", 1250.5],
+      ["1,250.50", 1250.5],
+      ["1250", 1250],
+      ["1.250", 1250],
+      ["1.250.000", 1_250_000],
+      ["  25,50  ", 25.5],
+    ];
+
+    for (const [amount, expected] of cases) {
+      expect(parseFlexibleAmount(amount)).toBe(expected);
+      const result = parseDonationInput({ ...validValues, amount });
+      expect(result).toEqual({
+        ok: true,
+        data: {
+          amount: expected,
+          currency: "USD",
+          donated_at: "2024-06-15",
+          method: "Transferencia",
+          concept: "Útiles",
+          notes: "Donación de prueba",
+          donor_name: "Carmen Rivas",
+        },
+      });
+    }
   });
 
   it("rechaza un monto negativo o demasiado grande", () => {
@@ -103,14 +138,14 @@ describe("parseDonationInput", () => {
       parseDonationInput({ ...validValues, amount: "-1" }),
     ).toEqual({
       ok: false,
-      fieldErrors: { amount: "Ingresa un monto válido." },
+      fieldErrors: { amount: "Escribe el monto con números. Ejemplo: 25,50" },
     });
 
     expect(
       parseDonationInput({ ...validValues, amount: "10000000000" }),
     ).toEqual({
       ok: false,
-      fieldErrors: { amount: "Ingresa un monto válido." },
+      fieldErrors: { amount: "Escribe el monto con números. Ejemplo: 25,50" },
     });
   });
 
@@ -122,7 +157,9 @@ describe("parseDonationInput", () => {
 
     expect(result).toEqual({
       ok: false,
-      fieldErrors: { donated_at: "La fecha no puede ser futura." },
+      fieldErrors: {
+        donated_at: "La fecha no puede ser futura. Revisa el día.",
+      },
     });
   });
 

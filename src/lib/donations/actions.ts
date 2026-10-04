@@ -48,7 +48,7 @@ const CONSTRAINT_FIELDS: Record<string, keyof DonationFieldErrors> = {
 };
 
 const CONSTRAINT_MESSAGES: Record<string, string> = {
-  donations_amount_nonnegative: "Ingresa un monto válido.",
+  donations_amount_nonnegative: "Escribe el monto con números. Ejemplo: 25,50",
   donations_currency_format: "Ingresa una moneda de 3 letras.",
   donations_donated_at_min: "Ingresa una fecha válida.",
   donations_donated_at_not_future: "La fecha no puede ser futura.",

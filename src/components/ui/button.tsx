@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LoaderCircle } from "lucide-react";
-import type { ComponentProps, ReactNode } from "react";
+import { forwardRef, type ComponentProps, type ReactNode } from "react";
 
 type Variant = "primary" | "secondary" | "danger" | "ghost";
 type Size = "md" | "lg";
@@ -65,19 +65,26 @@ function ButtonContent({
   );
 }
 
-export function Button({
-  variant = "primary",
-  size = "md",
-  icon,
-  loading = false,
-  disabled,
-  className,
-  children,
-  type = "button",
-  ...props
-}: ButtonSharedProps & Omit<ComponentProps<"button">, "children">) {
+export const Button = forwardRef<
+  HTMLButtonElement,
+  ButtonSharedProps & Omit<ComponentProps<"button">, "children">
+>(function Button(
+  {
+    variant = "primary",
+    size = "md",
+    icon,
+    loading = false,
+    disabled,
+    className,
+    children,
+    type = "button",
+    ...props
+  },
+  ref,
+) {
   return (
     <button
+      ref={ref}
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
@@ -89,7 +96,7 @@ export function Button({
       </ButtonContent>
     </button>
   );
-}
+});
 
 export function ButtonLink({
   variant = "primary",

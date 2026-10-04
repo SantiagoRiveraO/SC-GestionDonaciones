@@ -1,77 +1,122 @@
-import Link from "next/link";
+import type { ReactNode } from "react";
+import {
+  Banknote,
+  Gift,
+  Landmark,
+  Pencil,
+  Send,
+  Smartphone,
+  Wallet,
+} from "lucide-react";
 import { DeleteDonationButton } from "@/components/delete-donation-button";
-import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
+import { Badge } from "@/components/ui/badge";
+import { ButtonLink } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  formatDate,
+  formatDateTime,
+  formatLongDate,
+  formatMoney,
+} from "@/lib/format";
 import type { DonationListRow } from "@/types/database";
 
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+function MethodIcon({ method }: { method: string | null }) {
+  const iconClass = "size-4";
 
-type DonationDetailProps = {
-  donation: DonationListRow;
-};
+  switch ((method ?? "").trim().toLowerCase()) {
+    case "efectivo":
+      return <Banknote aria-hidden className={iconClass} />;
+    case "transferencia":
+      return <Landmark aria-hidden className={iconClass} />;
+    case "pago móvil":
+    case "pago movil":
+      return <Smartphone aria-hidden className={iconClass} />;
+    case "zelle":
+      return <Send aria-hidden className={iconClass} />;
+    case "en especie":
+      return <Gift aria-hidden className={iconClass} />;
+    default:
+      return <Wallet aria-hidden className={iconClass} />;
+  }
+}
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function DetailRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
   return (
-    <div className="grid gap-1 border-b border-zinc-100 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-      <dt className="text-sm font-medium text-zinc-500">{label}</dt>
-      <dd className="text-sm text-zinc-900">{value}</dd>
+    <div className="grid gap-1 border-b border-zinc-100 py-3 last:border-0 sm:grid-cols-[10rem_1fr] sm:gap-4">
+      <dt className="font-medium text-ink-soft">{label}</dt>
+      <dd className="text-ink">{children}</dd>
     </div>
   );
 }
 
-function attribution(name: string | null | undefined, iso: string | null | undefined) {
-  const who = name?.trim() ? name : "un usuario eliminado";
-  const when = iso ? formatDateTime(iso) : "—";
-  return `por ${who} el ${when}`;
+function who(name: string | null | undefined) {
+  return name?.trim() ? name : "un usuario eliminado";
 }
 
-export function DonationDetail({ donation }: DonationDetailProps) {
+export function DonationDetail({ donation }: { donation: DonationListRow }) {
   const amount =
     donation.amount == null || !donation.currency
       ? "—"
       : formatMoney(donation.amount, donation.currency);
+  const dateLabel = donation.donated_at
+    ? formatDate(donation.donated_at)
+    : "—";
+  const longDate = donation.donated_at
+    ? formatLongDate(donation.donated_at)
+    : "—";
+  const created = donation.created_at
+    ? formatDateTime(donation.created_at)
+    : "—";
+  const updated = donation.updated_at
+    ? formatDateTime(donation.updated_at)
+    : "—";
 
   return (
     <div className="space-y-6">
-      <dl className="rounded-lg border border-zinc-200 px-4">
-        <DetailRow
-          label="Fecha"
-          value={donation.donated_at ? formatDate(donation.donated_at) : "—"}
-        />
-        <DetailRow label="Donante" value={donation.donor_name || "—"} />
-        <DetailRow label="Monto" value={amount} />
-        <DetailRow label="Método" value={donation.method || "—"} />
-        <DetailRow label="Concepto" value={donation.concept || "—"} />
-        <DetailRow label="Notas" value={donation.notes || "—"} />
-        <DetailRow
-          label="Registrada"
-          value={attribution(donation.created_by_name, donation.created_at)}
-        />
-        <DetailRow
-          label="Última edición"
-          value={attribution(donation.updated_by_name, donation.updated_at)}
-        />
-      </dl>
+      <Card className="space-y-4 p-5">
+        <p className="text-[32px] leading-tight font-bold text-ink">{amount}</p>
+        <dl>
+          <DetailRow label="Fecha">{longDate}</DetailRow>
+          <DetailRow label="Donante">
+            {donation.donor_name?.trim() || "—"}
+          </DetailRow>
+          <DetailRow label="Método">
+            <Badge icon={<MethodIcon method={donation.method} />}>
+              {donation.method?.trim() || "—"}
+            </Badge>
+          </DetailRow>
+          <DetailRow label="Concepto">{donation.concept || "—"}</DetailRow>
+          <DetailRow label="Notas">{donation.notes || "—"}</DetailRow>
+        </dl>
+        <p className="text-ink-soft">
+          Registrada por {who(donation.created_by_name)} el {created}
+          {" · "}
+          Última edición por {who(donation.updated_by_name)} el {updated}
+        </p>
+      </Card>
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        {donation.id ? (
-          <>
-            <Link
-              href={`/donations/${donation.id}/edit`}
-              className={`inline-flex items-center justify-center rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 ${focusRing}`}
-            >
-              Editar
-            </Link>
-            <DeleteDonationButton donationId={donation.id} />
-          </>
-        ) : null}
-        <Link
-          href="/donations"
-          className={`inline-flex items-center justify-center rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 ${focusRing}`}
-        >
-          Volver
-        </Link>
-      </div>
+      {donation.id ? (
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <ButtonLink
+            href={`/donations/${donation.id}/edit`}
+            variant="secondary"
+            icon={<Pencil aria-hidden className="size-5" />}
+          >
+            Editar
+          </ButtonLink>
+          <DeleteDonationButton
+            donationId={donation.id}
+            amountLabel={amount}
+            dateLabel={dateLabel}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

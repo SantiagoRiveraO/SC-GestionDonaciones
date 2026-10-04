@@ -1,66 +1,315 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Banknote,
+  Check,
+  Gift,
+  Landmark,
+  Send,
+  Smartphone,
+  Wallet,
+} from "lucide-react";
 import {
   createDonation,
   updateDonation,
   type DonationActionState,
 } from "@/lib/donations/actions";
 import { localTodayIsoDate } from "@/lib/donations/validation";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
 import type { DonationListRow } from "@/types/database";
+import type { DonationFieldErrors } from "@/lib/donations/validation";
 
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+const fieldClassName =
+  "w-full min-h-[48px] rounded-lg border border-zinc-300 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
 
-const DEFAULT_CURRENCIES = ["USD", "VES", "EUR"];
-const DEFAULT_METHODS = [
+const choiceClassName =
+  "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-zinc-300 px-3 font-bold text-ink has-[:checked]:border-brand has-[:checked]:bg-brand-soft";
+
+const DEFAULT_CURRENCIES = ["USD", "VES", "EUR"] as const;
+const PRESET_METHODS = [
   "Efectivo",
   "Transferencia",
   "Pago móvil",
   "Zelle",
   "En especie",
-];
+] as const;
+
+const FIELD_LABELS: Record<keyof DonationFieldErrors, string> = {
+  amount: "Monto",
+  currency: "Moneda",
+  donated_at: "Fecha de la donación",
+  method: "¿Cómo se recibió?",
+  donor_name: "Donante",
+  concept: "Concepto",
+  notes: "Notas",
+};
 
 type DonationFormProps = {
   mode: "create" | "edit";
   donationId?: string;
   initial?: DonationListRow;
   donorNames: string[];
-  methods: string[];
 };
 
-function mergeOptions(defaults: string[], extra: string[], current?: string | null) {
-  const options = [...defaults];
-
-  for (const value of extra) {
-    if (value && !options.includes(value)) {
-      options.push(value);
-    }
-  }
-
-  if (current && !options.includes(current)) {
-    options.push(current);
-  }
-
-  return options;
+function AmountControl({
+  id,
+  defaultValue,
+  currency,
+  "aria-describedby": describedBy,
+  "aria-invalid": invalid,
+}: {
+  id?: string;
+  defaultValue?: string;
+  currency: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
+}) {
+  return (
+    <div className="flex min-h-[48px] overflow-hidden rounded-lg border border-zinc-300 bg-surface focus-within:ring-[3px] focus-within:ring-brand">
+      <span className="flex items-center bg-brand-soft px-3 font-bold text-brand">
+        {currency}
+      </span>
+      <input
+        id={id}
+        name="amount"
+        type="text"
+        inputMode="decimal"
+        defaultValue={defaultValue}
+        aria-describedby={describedBy}
+        aria-invalid={invalid}
+        className="min-h-[48px] min-w-0 flex-1 bg-transparent px-3 text-ink focus-visible:outline-none"
+      />
+    </div>
+  );
 }
 
-function FieldError({
-  id,
-  message,
-}: {
-  id: string;
-  message?: string;
-}) {
-  if (!message) {
-    return null;
+function MethodChoiceIcon({ value }: { value: string }) {
+  const iconClass = "size-5";
+
+  switch (value) {
+    case "Efectivo":
+      return <Banknote aria-hidden className={iconClass} />;
+    case "Transferencia":
+      return <Landmark aria-hidden className={iconClass} />;
+    case "Pago móvil":
+      return <Smartphone aria-hidden className={iconClass} />;
+    case "Zelle":
+      return <Send aria-hidden className={iconClass} />;
+    case "En especie":
+      return <Gift aria-hidden className={iconClass} />;
+    default:
+      return <Wallet aria-hidden className={iconClass} />;
+  }
+}
+
+function methodUiState(method: string) {
+  if (PRESET_METHODS.includes(method as (typeof PRESET_METHODS)[number])) {
+    return { choice: method, other: "" };
   }
 
+  if (method) {
+    return { choice: "Otro", other: method };
+  }
+
+  return { choice: "", other: "" };
+}
+
+function MethodFields({
+  method,
+  error,
+}: {
+  method: string;
+  error?: string;
+}) {
+  const initial = methodUiState(method);
+  const [choice, setChoice] = useState(initial.choice);
+  const [other, setOther] = useState(initial.other);
+  const errorId = error ? "method-error" : undefined;
+
   return (
-    <p id={id} className="text-sm text-red-700">
-      {message}
-    </p>
+    <div className="flex flex-col gap-3">
+      <fieldset
+        id="method"
+        aria-invalid={Boolean(error) || undefined}
+        aria-describedby={errorId}
+        className="flex flex-col gap-3"
+      >
+        <legend className="font-bold text-ink">¿Cómo se recibió?</legend>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {PRESET_METHODS.map((value) => (
+            <label key={value} className={choiceClassName}>
+              <input
+                type="radio"
+                name="method_choice"
+                value={value}
+                checked={choice === value}
+                onChange={() => setChoice(value)}
+                className="sr-only"
+              />
+              <MethodChoiceIcon value={value} />
+              {value}
+            </label>
+          ))}
+          <label className={choiceClassName}>
+            <input
+              type="radio"
+              name="method_choice"
+              value="Otro"
+              checked={choice === "Otro"}
+              onChange={() => setChoice("Otro")}
+              className="sr-only"
+            />
+            <MethodChoiceIcon value="Otro" />
+            Otro
+          </label>
+        </div>
+      </fieldset>
+      {choice === "Otro" ? (
+        <Field id="method-other" label="Escribe el método" error={error}>
+          <input
+            name="method"
+            type="text"
+            value={other}
+            onChange={(event) => setOther(event.target.value)}
+            className={fieldClassName}
+          />
+        </Field>
+      ) : (
+        <input type="hidden" name="method" value={choice} />
+      )}
+      {choice !== "Otro" && error ? (
+        <p id="method-error" className="font-medium text-red-700" role="alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function DonationFields({
+  values,
+  fieldErrors,
+  donorNames,
+}: {
+  values: {
+    amount: string;
+    currency: string;
+    donated_at: string;
+    method: string;
+    donor_name: string;
+    concept: string;
+    notes: string;
+  };
+  fieldErrors: DonationFieldErrors;
+  donorNames: string[];
+}) {
+  const [currency, setCurrency] = useState(values.currency);
+  const currencies = DEFAULT_CURRENCIES.includes(
+    values.currency as (typeof DEFAULT_CURRENCIES)[number],
+  )
+    ? [...DEFAULT_CURRENCIES]
+    : [...DEFAULT_CURRENCIES, values.currency];
+
+  return (
+    <>
+      <Field
+        id="amount"
+        label="Monto"
+        hint="Ejemplo: 25,50"
+        error={fieldErrors.amount}
+      >
+        <AmountControl currency={currency} defaultValue={values.amount} />
+      </Field>
+
+      <fieldset
+        id="currency"
+        aria-invalid={Boolean(fieldErrors.currency) || undefined}
+        aria-describedby={fieldErrors.currency ? "currency-error" : undefined}
+        className="flex flex-col gap-3"
+      >
+        <legend className="font-bold text-ink">Moneda</legend>
+        <div className="grid grid-cols-3 gap-3">
+          {currencies.map((code) => (
+            <label key={code} className={choiceClassName}>
+              <input
+                type="radio"
+                name="currency"
+                value={code}
+                checked={currency === code}
+                onChange={() => setCurrency(code)}
+                className="sr-only"
+              />
+              {code}
+            </label>
+          ))}
+        </div>
+        {fieldErrors.currency ? (
+          <p id="currency-error" className="font-medium text-red-700" role="alert">
+            {fieldErrors.currency}
+          </p>
+        ) : null}
+      </fieldset>
+
+      <Field
+        id="donated_at"
+        label="Fecha de la donación"
+        hint="Viene marcada la fecha de hoy."
+        error={fieldErrors.donated_at}
+      >
+        <input
+          type="date"
+          name="donated_at"
+          defaultValue={values.donated_at}
+          className={fieldClassName}
+        />
+      </Field>
+
+      <MethodFields method={values.method} error={fieldErrors.method} />
+
+      <Field
+        id="donor_name"
+        label="Donante"
+        optional
+        hint="Si el nombre ya existe, se usa el mismo donante."
+        error={fieldErrors.donor_name}
+      >
+        <input
+          type="text"
+          name="donor_name"
+          list="donor-names"
+          defaultValue={values.donor_name}
+          className={fieldClassName}
+        />
+      </Field>
+      <datalist id="donor-names">
+        {donorNames.map((name) => (
+          <option key={name} value={name} />
+        ))}
+      </datalist>
+
+      <Field id="concept" label="Concepto" optional error={fieldErrors.concept}>
+        <input
+          type="text"
+          name="concept"
+          defaultValue={values.concept}
+          className={fieldClassName}
+        />
+      </Field>
+
+      <Field id="notes" label="Notas" optional error={fieldErrors.notes}>
+        <textarea
+          name="notes"
+          rows={4}
+          defaultValue={values.notes}
+          className={`${fieldClassName} py-3`}
+        />
+      </Field>
+    </>
   );
 }
 
@@ -69,9 +318,9 @@ export function DonationForm({
   donationId,
   initial,
   donorNames,
-  methods,
 }: DonationFormProps) {
   const router = useRouter();
+  const summaryRef = useRef<HTMLDivElement>(null);
   const action =
     mode === "create"
       ? createDonation
@@ -92,186 +341,78 @@ export function DonationForm({
     donor_name: initial?.donor_name ?? "",
   };
   const fieldErrors = state?.fieldErrors ?? {};
-  const currencyOptions = mergeOptions(
-    DEFAULT_CURRENCIES,
-    [],
-    values.currency,
-  );
-  const methodOptions = mergeOptions(DEFAULT_METHODS, methods, values.method);
+  const errorEntries = (
+    Object.entries(fieldErrors) as Array<[keyof DonationFieldErrors, string]>
+  ).filter(([, message]) => Boolean(message));
+  const hasErrors = Boolean(state?.formError) || errorEntries.length > 0;
+
+  useEffect(() => {
+    if (hasErrors) {
+      summaryRef.current?.focus();
+    }
+  }, [state, hasErrors]);
 
   return (
-    <form
-      action={formAction}
-      className="space-y-3 rounded-lg border border-zinc-200 p-4"
-    >
-      {mode === "edit" ? (
-        <input type="hidden" name="id" value={values.id} />
-      ) : null}
+    <Card className="p-5">
+      <form action={formAction} noValidate className="flex flex-col gap-5">
+        {mode === "edit" ? (
+          <input type="hidden" name="id" value={values.id} />
+        ) : null}
 
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Donante (opcional)</span>
-        <input
-          type="text"
-          id="donor_name"
-          name="donor_name"
-          list="donor-names"
-          defaultValue={values.donor_name}
-          aria-invalid={Boolean(fieldErrors.donor_name)}
-          aria-describedby={
-            fieldErrors.donor_name ? "donor_name-error" : undefined
-          }
-          className={`w-full rounded-md border border-zinc-300 px-3 py-2 ${focusRing}`}
+        {hasErrors ? (
+          <div ref={summaryRef} tabIndex={-1} className="outline-none">
+            <Alert variant="error">
+              <p className="font-bold">Revisa estos datos:</p>
+              {state?.formError ? <p>{state.formError}</p> : null}
+              {errorEntries.length > 0 ? (
+                <ul className="mt-2 list-disc space-y-1 pl-5">
+                  {errorEntries.map(([field, message]) => (
+                    <li key={field}>
+                      <a href={`#${field}`} className="underline">
+                        {FIELD_LABELS[field]}: {message}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </Alert>
+          </div>
+        ) : null}
+
+        <DonationFields
+          key={[
+            values.amount,
+            values.currency,
+            values.donated_at,
+            values.method,
+            values.donor_name,
+            values.concept,
+            values.notes,
+          ].join("|")}
+          values={values}
+          fieldErrors={fieldErrors}
+          donorNames={donorNames}
         />
-        <datalist id="donor-names">
-          {donorNames.map((name) => (
-            <option key={name} value={name} />
-          ))}
-        </datalist>
-        <FieldError id="donor_name-error" message={fieldErrors.donor_name} />
-      </label>
 
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Monto</span>
-        <input
-          type="number"
-          id="amount"
-          name="amount"
-          min="0"
-          step="0.01"
-          required
-          defaultValue={values.amount}
-          aria-invalid={Boolean(fieldErrors.amount)}
-          aria-describedby={fieldErrors.amount ? "amount-error" : undefined}
-          className={`w-full rounded-md border border-zinc-300 px-3 py-2 ${focusRing}`}
-          placeholder="0.00"
-        />
-        <FieldError id="amount-error" message={fieldErrors.amount} />
-      </label>
-
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Moneda</span>
-        {/* The key remounts the select: after a failed action React resets
-            the form, and a select would fall back to its first default. */}
-        <select
-          key={values.currency}
-          id="currency"
-          name="currency"
-          required
-          defaultValue={values.currency}
-          aria-invalid={Boolean(fieldErrors.currency)}
-          aria-describedby={fieldErrors.currency ? "currency-error" : undefined}
-          className={`w-full rounded-md border border-zinc-300 px-3 py-2 ${focusRing}`}
-        >
-          {currencyOptions.map((currency) => (
-            <option key={currency} value={currency}>
-              {currency}
-            </option>
-          ))}
-        </select>
-        <FieldError id="currency-error" message={fieldErrors.currency} />
-      </label>
-
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Fecha de donación</span>
-        <input
-          type="date"
-          id="donated_at"
-          name="donated_at"
-          required
-          defaultValue={values.donated_at}
-          aria-invalid={Boolean(fieldErrors.donated_at)}
-          aria-describedby={
-            fieldErrors.donated_at ? "donated_at-error" : undefined
-          }
-          className={`w-full rounded-md border border-zinc-300 px-3 py-2 ${focusRing}`}
-        />
-        <FieldError id="donated_at-error" message={fieldErrors.donated_at} />
-      </label>
-
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Método</span>
-        <input
-          type="text"
-          id="method"
-          name="method"
-          list="donation-methods"
-          defaultValue={values.method}
-          aria-invalid={Boolean(fieldErrors.method)}
-          aria-describedby={fieldErrors.method ? "method-error" : undefined}
-          className={`w-full rounded-md border border-zinc-300 px-3 py-2 ${focusRing}`}
-          placeholder="Transferencia, efectivo…"
-        />
-        <datalist id="donation-methods">
-          {methodOptions.map((method) => (
-            <option key={method} value={method} />
-          ))}
-        </datalist>
-        <FieldError id="method-error" message={fieldErrors.method} />
-      </label>
-
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Concepto</span>
-        <input
-          type="text"
-          id="concept"
-          name="concept"
-          defaultValue={values.concept}
-          aria-invalid={Boolean(fieldErrors.concept)}
-          aria-describedby={fieldErrors.concept ? "concept-error" : undefined}
-          className={`w-full rounded-md border border-zinc-300 px-3 py-2 ${focusRing}`}
-        />
-        <FieldError id="concept-error" message={fieldErrors.concept} />
-      </label>
-
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Notas</span>
-        <textarea
-          id="notes"
-          name="notes"
-          rows={3}
-          defaultValue={values.notes}
-          aria-invalid={Boolean(fieldErrors.notes)}
-          aria-describedby={fieldErrors.notes ? "notes-error" : undefined}
-          className={`w-full rounded-md border border-zinc-300 px-3 py-2 ${focusRing}`}
-        />
-        <FieldError id="notes-error" message={fieldErrors.notes} />
-      </label>
-
-      {state?.formError ? (
-        <p
-          role="alert"
-          className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-        >
-          {state.formError}
-        </p>
-      ) : null}
-
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-zinc-400"
-        >
-          {pending
-            ? "Guardando…"
-            : mode === "create"
-              ? "Crear donación"
-              : "Guardar cambios"}
-        </button>
-        <button
-          type="button"
-          onClick={() =>
-            router.push(
-              mode === "edit" && donationId
-                ? `/donations/${donationId}`
-                : "/donations",
-            )
-          }
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
-        >
-          Cancelar
-        </button>
-      </div>
-    </form>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button
+            type="submit"
+            size="lg"
+            icon={<Check aria-hidden className="size-5" />}
+            loading={pending}
+          >
+            {pending ? "Guardando…" : "Guardar donación"}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="lg"
+            onClick={() => router.back()}
+          >
+            Cancelar
+          </Button>
+        </div>
+      </form>
+    </Card>
   );
 }

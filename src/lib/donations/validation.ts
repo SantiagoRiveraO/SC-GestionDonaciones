@@ -32,13 +32,79 @@ export type ParseDonationResult =
   | { ok: true; data: DonationParsedInput }
   | { ok: false; fieldErrors: DonationFieldErrors };
 
-const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
 const CURRENCY_PATTERN = /^[A-Za-z]{3}$/;
 const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MIN_DONATED_AT = "2000-01-01";
 const MAX_AMOUNT = 10_000_000_000;
+const AMOUNT_ERROR = "Escribe el monto con números. Ejemplo: 25,50";
+
+function isThousandGroups(parts: string[]) {
+  return (
+    parts.length > 1 &&
+    /^\d+$/.test(parts[0] ?? "") &&
+    parts.slice(1).every((part) => part.length === 3 && /^\d+$/.test(part))
+  );
+}
+
+export function parseFlexibleAmount(raw: string): number | null {
+  const cleaned = raw.replace(/\s/g, "");
+  if (!cleaned || !/^[\d.,]+$/.test(cleaned) || !/\d/.test(cleaned)) {
+    return null;
+  }
+
+  const commaCount = (cleaned.match(/,/g) ?? []).length;
+  const periodCount = (cleaned.match(/\./g) ?? []).length;
+  let normalized: string;
+
+  if (commaCount > 0 && periodCount > 0) {
+    const decimalIndex = Math.max(
+      cleaned.lastIndexOf(","),
+      cleaned.lastIndexOf("."),
+    );
+    const integer = cleaned.slice(0, decimalIndex).replace(/[.,]/g, "");
+    const decimal = cleaned.slice(decimalIndex + 1);
+    if (!/^\d+$/.test(integer) || !/^\d+$/.test(decimal)) {
+      return null;
+    }
+    normalized = `${integer}.${decimal}`;
+  } else if (commaCount > 0) {
+    const parts = cleaned.split(",");
+    if (parts.length === 2 && parts.every((part) => /^\d+$/.test(part))) {
+      normalized = `${parts[0]}.${parts[1]}`;
+    } else if (isThousandGroups(parts)) {
+      normalized = parts.join("");
+    } else {
+      return null;
+    }
+  } else if (periodCount > 0) {
+    const parts = cleaned.split(".");
+    if (isThousandGroups(parts)) {
+      normalized = parts.join("");
+    } else if (parts.length === 2 && parts.every((part) => /^\d+$/.test(part))) {
+      normalized = `${parts[0]}.${parts[1]}`;
+    } else {
+      return null;
+    }
+  } else if (/^\d+$/.test(cleaned)) {
+    normalized = cleaned;
+  } else {
+    return null;
+  }
+
+  const decimal = normalized.includes(".") ? normalized.split(".")[1] ?? "" : "";
+  if (decimal.length > 2) {
+    return null;
+  }
+
+  const amount = Number(normalized);
+  if (!Number.isFinite(amount) || amount < 0 || amount >= MAX_AMOUNT) {
+    return null;
+  }
+
+  return amount;
+}
 
 function asTrimmedString(value: unknown): string {
   if (value == null) {
@@ -95,13 +161,11 @@ export function parseDonationInput(
   const donorNameText = asTrimmedString(values.donor_name);
 
   let amount = 0;
-  if (!AMOUNT_PATTERN.test(amountText)) {
-    fieldErrors.amount = "Ingresa un monto válido.";
+  const parsedAmount = parseFlexibleAmount(amountText);
+  if (parsedAmount == null) {
+    fieldErrors.amount = AMOUNT_ERROR;
   } else {
-    amount = Number(amountText);
-    if (!Number.isFinite(amount) || amount < 0 || amount >= MAX_AMOUNT) {
-      fieldErrors.amount = "Ingresa un monto válido.";
-    }
+    amount = parsedAmount;
   }
 
   if (!CURRENCY_PATTERN.test(currencyText)) {
@@ -113,7 +177,7 @@ export function parseDonationInput(
   } else if (donatedAtText < MIN_DONATED_AT) {
     fieldErrors.donated_at = "La fecha no puede ser anterior al 2000.";
   } else if (donatedAtText > localTodayIsoDate()) {
-    fieldErrors.donated_at = "La fecha no puede ser futura.";
+    fieldErrors.donated_at = "La fecha no puede ser futura. Revisa el día.";
   }
 
   if (methodText.length > 50) {
