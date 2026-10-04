@@ -6,8 +6,18 @@ import {
 } from "@/lib/donations/filters";
 
 describe("parseDonationFilters", () => {
+  it("filtra por categoría sin mezclar filtros de dinero y conserva la categoría en la URL", () => {
+    const filters = parseDonationFilters({ categoria: "food", moneda: "USD", metodo: "Efectivo", pagina: "2" });
+    expect(filters).toMatchObject({ kind: "supplies", category: "food", currency: null, method: null });
+    expect(parseDonationFilters(serializeDonationFilters(filters))).toEqual(filters);
+    expect(parseDonationFilters({ tipo: "money", categoria: "food" }).category).toBeNull();
+    expect(parseDonationFilters({ categoria: "id no válido" }).category).toBeNull();
+    expect(parseDonationFilters({ categoria: "9427d8e1-36f6-4d13-811b-44fdf2f820bd" }).category).toBe("9427d8e1-36f6-4d13-811b-44fdf2f820bd");
+  });
   it("usa página 1 y filtros vacíos si no hay parámetros", () => {
     expect(parseDonationFilters(new URLSearchParams())).toEqual({
+      kind: null,
+      category: null,
       q: null,
       currency: null,
       method: null,
@@ -28,6 +38,8 @@ describe("parseDonationFilters", () => {
     });
 
     expect(parseDonationFilters(params)).toEqual({
+      kind: null,
+      category: null,
       q: "útiles",
       currency: "USD",
       method: "Efectivo",
@@ -50,6 +62,8 @@ describe("parseDonationFilters", () => {
         foo: ["1", "2"],
       }),
     ).toEqual({
+      kind: null,
+      category: null,
       q: null,
       currency: null,
       method: null,
@@ -68,6 +82,13 @@ describe("parseDonationFilters", () => {
 });
 
 describe("serializeDonationFilters", () => {
+  it("conserva el tipo de donación y omite tipos desconocidos", () => {
+    expect(parseDonationFilters({ tipo: "otra" }).kind).toBeNull();
+    for (const kind of ["money", "supplies"] as const) {
+      const filters = parseDonationFilters({ tipo: kind, pagina: "2" });
+      expect(parseDonationFilters(serializeDonationFilters(filters))).toEqual(filters);
+    }
+  });
   it("omite vacíos y la página 1", () => {
     const params = serializeDonationFilters({
       q: " útiles ",

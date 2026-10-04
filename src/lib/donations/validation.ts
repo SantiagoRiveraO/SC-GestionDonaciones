@@ -1,4 +1,11 @@
+import { parseSupplyCategory, type SupplyCategory } from "@/lib/donations/categories";
+
 export type DonationInputValues = {
+  category?: unknown;
+  kind?: unknown;
+  item_description?: unknown;
+  quantity?: unknown;
+  unit?: unknown;
   amount?: unknown;
   currency?: unknown;
   donated_at?: unknown;
@@ -9,8 +16,13 @@ export type DonationInputValues = {
 };
 
 export type DonationParsedInput = {
-  amount: number;
-  currency: string;
+  category: SupplyCategory | null;
+  kind: "money" | "supplies";
+  item_description: string | null;
+  quantity: number | null;
+  unit: string | null;
+  amount: number | null;
+  currency: string | null;
   donated_at: string;
   method: string | null;
   concept: string | null;
@@ -19,6 +31,11 @@ export type DonationParsedInput = {
 };
 
 export type DonationFieldErrors = Partial<{
+  category: string;
+  kind: string;
+  item_description: string;
+  quantity: string;
+  unit: string;
   amount: string;
   currency: string;
   donated_at: string;
@@ -159,17 +176,49 @@ export function parseDonationInput(
   const conceptText = asTrimmedString(values.concept);
   const notesText = asTrimmedString(values.notes);
   const donorNameText = asTrimmedString(values.donor_name);
+  const kindText = asTrimmedString(values.kind) || "money";
+  const kind = kindText === "supplies" ? "supplies" : "money";
+  const itemText = asTrimmedString(values.item_description);
+  const quantityText = asTrimmedString(values.quantity);
+  const unitText = asTrimmedString(values.unit);
+  const categoryText = asTrimmedString(values.category);
+  const category = kind === "supplies" ? parseSupplyCategory(categoryText) : null;
 
-  let amount = 0;
-  const parsedAmount = parseFlexibleAmount(amountText);
-  if (parsedAmount == null) {
-    fieldErrors.amount = AMOUNT_ERROR;
-  } else {
-    amount = parsedAmount;
+  if (kindText !== "money" && kindText !== "supplies") {
+    fieldErrors.kind = "Elige si recibiste dinero o insumos.";
   }
 
-  if (!CURRENCY_PATTERN.test(currencyText)) {
-    fieldErrors.currency = "Ingresa una moneda de 3 letras.";
+  let amount: number | null = null;
+  let quantity: number | null = null;
+  if (kind === "money") {
+    amount = parseFlexibleAmount(amountText);
+    if (amount == null) fieldErrors.amount = AMOUNT_ERROR;
+    if (!CURRENCY_PATTERN.test(currencyText)) {
+      fieldErrors.currency = "Ingresa una moneda de 3 letras.";
+    }
+    if (methodText.toLowerCase() === "en especie") {
+      fieldErrors.method = "Para registrar insumos, elige Insumos arriba.";
+    }
+  } else {
+    if (categoryText && !category) {
+      fieldErrors.category = "Elige una de las categorías disponibles.";
+    }
+    if (!itemText) {
+      fieldErrors.item_description = "Describe los insumos recibidos. Ejemplo: arroz o pañales.";
+    } else if (itemText.length > 200) {
+      fieldErrors.item_description = "Máximo 200 caracteres.";
+    }
+    if (quantityText || unitText) {
+      quantity = parseFlexibleAmount(quantityText);
+      if (quantity == null || quantity <= 0) {
+        fieldErrors.quantity = "Escribe una cantidad mayor que cero. Ejemplo: 10 o 2,50.";
+      }
+      if (!unitText) {
+        fieldErrors.unit = "Escribe cómo se cuenta. Ejemplo: sacos, cajas o kg.";
+      } else if (unitText.length > 40) {
+        fieldErrors.unit = "Máximo 40 caracteres.";
+      }
+    }
   }
 
   if (!isValidIsoDate(donatedAtText)) {
@@ -180,7 +229,7 @@ export function parseDonationInput(
     fieldErrors.donated_at = "La fecha no puede ser futura. Revisa el día.";
   }
 
-  if (methodText.length > 50) {
+  if (kind === "money" && methodText.length > 50) {
     fieldErrors.method = "Máximo 50 caracteres.";
   }
 
@@ -203,10 +252,15 @@ export function parseDonationInput(
   return {
     ok: true,
     data: {
+      category,
+      kind,
+      item_description: kind === "supplies" ? itemText : null,
+      quantity,
+      unit: kind === "supplies" ? emptyToNull(unitText) : null,
       amount,
-      currency: currencyText.toUpperCase(),
+      currency: kind === "money" ? currencyText.toUpperCase() : null,
       donated_at: donatedAtText,
-      method: emptyToNull(methodText),
+      method: kind === "money" ? emptyToNull(methodText) : null,
       concept: emptyToNull(conceptText),
       notes: emptyToNull(notesText),
       donor_name: emptyToNull(donorNameText),

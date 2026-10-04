@@ -39,7 +39,12 @@ Fuentes:
 - Los campos opcionales dicen "(opcional)". No se usan asteriscos.
 - **Monto flexible**: acepta `25,50`, `25.50`, `1.250,50` y `1250`. Lo convertimos nosotros: nunca se rechaza por el formato.
 - La fecha viene puesta con la de hoy.
-- El método de pago se elige con botones grandes con ícono (Efectivo, Transferencia, Pago móvil, Zelle, En especie). "Otro" abre un campo de texto.
+- Primero se elige qué se recibió con dos botones grandes: **Dinero** o **Insumos**. Los datos escritos se conservan al alternar antes de guardar.
+- Dinero muestra monto, moneda y método de pago (Efectivo, Transferencia, Pago móvil, Zelle). "Otro" abre un campo de texto.
+- Insumos muestra descripción (obligatoria), cantidad y unidad (opcionales, se indican juntas). Ejemplo: arroz, 2,50 kg. No requiere inventar un valor de dinero.
+- La categoría de insumos es opcional: seis opciones iniciales y un catálogo editable, con controles de 64 px, etiqueta escrita y selección perceptible por forma y color. **Agregar nueva categoría** permite crearla sin salir ni perder datos y la selecciona automáticamente. **Administrar categorías** permite cambiar los nombres. En 360 px se usa una columna para evitar textos apretados. La descripción pregunta **¿Qué se recibió?** y la unidad **¿Cómo se cuenta?**. Ejemplo: Alimentos, sacos de harina, 3 sacos.
+- Se toman como referencia las [recomendaciones WAI para personas mayores](https://www.w3.org/WAI/older-users/developing/) y el patrón de [etiquetas claras de W3C](https://www.w3.org/WAI/WCAG2/supplemental/patterns/o4p06-clear-labels/): opciones reconocibles, ayudas visibles y lenguaje cotidiano. La validación con personal real de la fundación sigue siendo necesaria para comprobar facilidad de uso.
+- Inicio y listado muestran los totales de dinero por moneda y el número de donaciones de insumos por separado. No se suman kg con cajas ni artículos distintos.
 - La moneda se elige con tres botones grandes: USD, VES y EUR.
 
 ## 4. Errores que no asustan

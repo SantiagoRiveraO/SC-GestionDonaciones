@@ -16,8 +16,8 @@ import {
   formatDate,
   formatDateTime,
   formatLongDate,
-  formatMoney,
 } from "@/lib/format";
+import { donationValueLabel } from "@/lib/donations/presentation";
 import type { DonationListRow } from "@/types/database";
 
 function MethodIcon({ method }: { method: string | null }) {
@@ -50,7 +50,7 @@ function DetailRow({
   return (
     <div className="grid gap-1 border-b border-zinc-100 py-3 last:border-0 sm:grid-cols-[10rem_1fr] sm:gap-4">
       <dt className="font-medium text-ink-soft">{label}</dt>
-      <dd className="text-ink">{children}</dd>
+      <dd className="min-w-0 break-words text-ink">{children}</dd>
     </div>
   );
 }
@@ -60,10 +60,8 @@ function who(name: string | null | undefined) {
 }
 
 export function DonationDetail({ donation }: { donation: DonationListRow }) {
-  const amount =
-    donation.amount == null || !donation.currency
-      ? "—"
-      : formatMoney(donation.amount, donation.currency);
+  const amount = donationValueLabel(donation);
+  const supplies = donation.kind === "supplies";
   const dateLabel = donation.donated_at
     ? formatDate(donation.donated_at)
     : "—";
@@ -80,17 +78,32 @@ export function DonationDetail({ donation }: { donation: DonationListRow }) {
   return (
     <div className="space-y-6">
       <Card className="space-y-4 p-5">
-        <p className="text-[32px] leading-tight font-bold text-ink">{amount}</p>
+        <Badge
+          icon={supplies ? <Gift aria-hidden className="size-4" /> : <Banknote aria-hidden className="size-4" />}
+        >
+          {supplies ? "Donación de insumos" : "Donación de dinero"}
+        </Badge>
+        <p className="break-words text-[32px] leading-tight font-bold text-ink">
+          {supplies ? donation.item_description : amount}
+        </p>
         <dl>
+          {supplies ? (
+            <>
+              <DetailRow label="Categoría">{donation.category_name ?? "Sin categoría"}</DetailRow>
+              <DetailRow label="Cantidad">{donation.quantity == null ? "No especificada" : amount}</DetailRow>
+            </>
+          ) : null}
           <DetailRow label="Fecha">{longDate}</DetailRow>
           <DetailRow label="Donante">
             {donation.donor_name?.trim() || "—"}
           </DetailRow>
-          <DetailRow label="Método">
-            <Badge icon={<MethodIcon method={donation.method} />}>
-              {donation.method?.trim() || "—"}
-            </Badge>
-          </DetailRow>
+          {!supplies ? (
+            <DetailRow label="Método de pago">
+              <Badge icon={<MethodIcon method={donation.method} />}>
+                {donation.method?.trim() || "—"}
+              </Badge>
+            </DetailRow>
+          ) : null}
           <DetailRow label="Concepto">{donation.concept || "—"}</DetailRow>
           <DetailRow label="Notas">{donation.notes || "—"}</DetailRow>
         </dl>
@@ -112,7 +125,7 @@ export function DonationDetail({ donation }: { donation: DonationListRow }) {
           </ButtonLink>
           <DeleteDonationButton
             donationId={donation.id}
-            amountLabel={amount}
+            amountLabel={supplies ? `${donation.item_description} · ${amount}` : amount}
             dateLabel={dateLabel}
           />
         </div>

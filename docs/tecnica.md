@@ -85,6 +85,7 @@ Migraciones actuales:
 
 - `supabase/migrations/20260804000000_initial_schema.sql`
 - `supabase/migrations/20261003000000_rls_and_queries.sql`
+- `supabase/migrations/20261004144030_donation_supplies.sql` — estructura para dinero e insumos y consultas con filtro de tipo; aplicada en producción el 2026-10-04 mediante el plugin de Supabase. Sin carga de datos.
 
 Para agregar una migración nueva: `npx supabase migration new nombre_corto` (crea un SQL con prefijo de fecha en `supabase/migrations/`). Escribe el SQL, pruébalo en local con `npm run db:reset` y `npm run db:test`. En producción, `npx supabase db push` (nunca `--include-seed`).
 
@@ -100,7 +101,7 @@ Para agregar una migración nueva: `npx supabase migration new nombre_corto` (cr
 Producción actual:
 
 - **App:** https://sc-gestion-donaciones.vercel.app (proyecto `sc-gestion-donaciones` en Vercel).
-- **Base:** proyecto de Supabase "MS servicio comunitario" (`https://vwszdrprqpspqeaowhwd.supabase.co`). Las dos migraciones se aplicaron el 2026-10-04 sin seed, y su historial coincide con `supabase/migrations/`.
+- **Base:** proyecto de Supabase "MS servicio comunitario" (`https://vwszdrprqpspqeaowhwd.supabase.co`). La estructura de dinero, insumos y categorías editables está aplicada sin seed, y su historial coincide con `supabase/migrations/`.
 
 ### Supabase producción
 

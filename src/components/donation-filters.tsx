@@ -6,6 +6,7 @@ import { startTransition, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
+import { parseSupplyCategory, type SupplyCategoryOption } from "@/lib/donations/categories";
 import {
   donationsListHref,
   hasActiveSearchFilters,
@@ -19,6 +20,7 @@ type DonationFiltersProps = {
   filters: DonationSearchFilters;
   currencies: string[];
   methods: string[];
+  categories: SupplyCategoryOption[];
 };
 
 function optionsWithSelected(options: string[], selected: string | null) {
@@ -31,7 +33,7 @@ function optionsWithSelected(options: string[], selected: string | null) {
 
 function hasAdvancedFilters(filters: DonationSearchFilters) {
   return Boolean(
-    filters.currency || filters.method || filters.from || filters.to,
+    filters.category || filters.kind || filters.currency || filters.method || filters.from || filters.to,
   );
 }
 
@@ -39,6 +41,7 @@ export function DonationFilters({
   filters,
   currencies,
   methods,
+  categories,
 }: DonationFiltersProps) {
   const router = useRouter();
   const filtersRef = useRef(filters);
@@ -96,7 +99,7 @@ export function DonationFilters({
       <section aria-label="Búsqueda y filtros" className="space-y-4">
         <div className="space-y-1.5">
           <label htmlFor="donation-search" className="font-bold text-ink">
-            Buscar por donante, concepto o método
+            Buscar por donante, insumos, concepto o método
           </label>
           <div className="relative">
             <Search
@@ -142,6 +145,40 @@ export function DonationFilters({
             id="donation-advanced-filters"
             className="grid grid-cols-1 gap-4 md:grid-cols-2"
           >
+            <Field id="filter-kind" label="Tipo de donación">
+              <select
+                value={filters.kind ?? ""}
+                onChange={(event) => replaceFilters({
+                  ...filters,
+                  kind: event.target.value === "money" ? "money" : event.target.value === "supplies" ? "supplies" : null,
+                  category: event.target.value === "money" ? null : filters.category,
+                  currency: event.target.value === "supplies" ? null : filters.currency,
+                  method: event.target.value === "supplies" ? null : filters.method,
+                })}
+                className={fieldClassName}
+              >
+                <option value="">Dinero e insumos</option>
+                <option value="money">Dinero</option>
+                <option value="supplies">Insumos</option>
+              </select>
+            </Field>
+            <Field id="filter-category" label="Categoría de insumos">
+              <select
+                disabled={filters.kind === "money"}
+                value={filters.category ?? ""}
+                onChange={(event) => replaceFilters({
+                  ...filters,
+                  category: parseSupplyCategory(event.target.value),
+                  kind: event.target.value ? "supplies" : filters.kind,
+                  currency: event.target.value ? null : filters.currency,
+                  method: event.target.value ? null : filters.method,
+                })}
+                className={fieldClassName}
+              >
+                <option value="">Todas</option>
+                {categories.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </Field>
             <Field id="filter-from" label="Desde">
               <input
                 type="date"
@@ -168,8 +205,9 @@ export function DonationFilters({
                 className={fieldClassName}
               />
             </Field>
-            <Field id="filter-currency" label="Moneda">
+            <Field id="filter-currency" label="Moneda del dinero">
               <select
+                disabled={filters.kind === "supplies"}
                 value={filters.currency ?? ""}
                 onChange={(event) =>
                   replaceFilters({
@@ -187,8 +225,9 @@ export function DonationFilters({
                 ))}
               </select>
             </Field>
-            <Field id="filter-method" label="Método">
+            <Field id="filter-method" label="Método de pago">
               <select
+                disabled={filters.kind === "supplies"}
                 value={filters.method ?? ""}
                 onChange={(event) =>
                   replaceFilters({

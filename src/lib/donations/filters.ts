@@ -1,6 +1,9 @@
 import { isValidIsoDate } from "@/lib/donations/validation";
+import { parseSupplyCategory, type SupplyCategory } from "@/lib/donations/categories";
 
 export type DonationSearchFilters = {
+  category: SupplyCategory | null;
+  kind: "money" | "supplies" | null;
   q: string | null;
   currency: string | null;
   method: string | null;
@@ -72,10 +75,14 @@ function parsePage(raw: string | null): number {
 export function parseDonationFilters(
   searchParams: SearchParamsInput,
 ): DonationListParams {
+  const kind = readParam(searchParams, "tipo");
+  const category = kind === "money" ? null : parseSupplyCategory(readParam(searchParams, "categoria"));
   return {
+    category,
+    kind: category ? "supplies" : kind === "money" || kind === "supplies" ? kind : null,
     q: emptyToNull(readParam(searchParams, "q")),
-    currency: parseCurrency(readParam(searchParams, "moneda")),
-    method: emptyToNull(readParam(searchParams, "metodo")),
+    currency: kind === "supplies" || category ? null : parseCurrency(readParam(searchParams, "moneda")),
+    method: kind === "supplies" || category ? null : emptyToNull(readParam(searchParams, "metodo")),
     from: parseDate(readParam(searchParams, "desde")),
     to: parseDate(readParam(searchParams, "hasta")),
     page: parsePage(readParam(searchParams, "pagina")),
@@ -84,7 +91,7 @@ export function parseDonationFilters(
 
 export function hasActiveSearchFilters(filters: DonationSearchFilters): boolean {
   return Boolean(
-    filters.q || filters.currency || filters.method || filters.from || filters.to,
+    filters.category || filters.kind || filters.q || filters.currency || filters.method || filters.from || filters.to,
   );
 }
 
@@ -97,6 +104,14 @@ export function serializeDonationFilters(
   filters: Partial<DonationListParams>,
 ): URLSearchParams {
   const params = new URLSearchParams();
+  const category = filters.kind === "money" ? null : parseSupplyCategory(filters.category);
+  if (category) {
+    params.set("categoria", category);
+    params.set("tipo", "supplies");
+  }
+  if (filters.kind === "money" || filters.kind === "supplies") {
+    params.set("tipo", filters.kind);
+  }
   const q = emptyToNull(filters.q ?? null);
   const currency = parseCurrency(filters.currency ?? null);
   const method = emptyToNull(filters.method ?? null);
@@ -107,10 +122,10 @@ export function serializeDonationFilters(
   if (q) {
     params.set("q", q);
   }
-  if (currency) {
+  if (currency && filters.kind !== "supplies" && !category) {
     params.set("moneda", currency);
   }
-  if (method) {
+  if (method && filters.kind !== "supplies" && !category) {
     params.set("metodo", method);
   }
   if (from) {

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { DonationForm } from "@/components/donation-form";
 import { PageHeader } from "@/components/ui/page-header";
-import { getDonation, listDonorNames } from "@/lib/donations/queries";
+import { getDonation, listDonorNames, listSupplyCategories } from "@/lib/donations/queries";
 
 type EditDonationPageProps = {
   params: Promise<{ id: string }>;
@@ -11,9 +11,10 @@ export default async function EditDonationPage({
   params,
 }: EditDonationPageProps) {
   const { id } = await params;
-  const [donation, donorNames] = await Promise.all([
+  const [donation, donorNames, categories] = await Promise.all([
     getDonation(id),
     listDonorNames(),
+    listSupplyCategories(),
   ]);
 
   if (!donation) {
@@ -32,6 +33,7 @@ export default async function EditDonationPage({
         donationId={id}
         initial={donation}
         donorNames={donorNames}
+        categories={categories}
       />
     </main>
   );

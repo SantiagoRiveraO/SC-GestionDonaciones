@@ -9,9 +9,15 @@ import {
   parseDonationInput,
   type DonationFieldErrors,
   type DonationInputValues,
+  type DonationParsedInput,
 } from "@/lib/donations/validation";
 
 export type DonationActionValues = {
+  category: string;
+  kind: string;
+  item_description: string;
+  quantity: string;
+  unit: string;
   id: string;
   amount: string;
   currency: string;
@@ -37,6 +43,12 @@ const SESSION_ERROR_CODES = new Set([
 ]);
 
 const CONSTRAINT_FIELDS: Record<string, keyof DonationFieldErrors> = {
+  donations_category_allowed: "category",
+  donations_category_fkey: "category",
+  donations_kind_allowed: "kind",
+  donations_money_fields: "amount",
+  donations_supplies_fields: "item_description",
+  donations_quantity_unit: "quantity",
   donations_amount_nonnegative: "amount",
   donations_currency_format: "currency",
   donations_donated_at_min: "donated_at",
@@ -48,6 +60,12 @@ const CONSTRAINT_FIELDS: Record<string, keyof DonationFieldErrors> = {
 };
 
 const CONSTRAINT_MESSAGES: Record<string, string> = {
+  donations_category_allowed: "Elige una de las categorías disponibles.",
+  donations_category_fkey: "Esta categoría no existe. Elige una disponible o agrega una nueva.",
+  donations_kind_allowed: "Elige si recibiste dinero o insumos.",
+  donations_money_fields: "Revisa el monto y la moneda de la donación.",
+  donations_supplies_fields: "Describe los insumos recibidos (máximo 200 caracteres).",
+  donations_quantity_unit: "Revisa la cantidad y su unidad.",
   donations_amount_nonnegative: "Escribe el monto con números. Ejemplo: 25,50",
   donations_currency_format: "Ingresa una moneda de 3 letras.",
   donations_donated_at_min: "Ingresa una fecha válida.",
@@ -66,6 +84,11 @@ function readFormString(formData: FormData, key: string): string {
 function readFormValues(formData: FormData): DonationActionValues {
   return {
     id: readFormString(formData, "id"),
+    category: readFormString(formData, "category"),
+    kind: readFormString(formData, "kind") || "money",
+    item_description: readFormString(formData, "item_description"),
+    quantity: readFormString(formData, "quantity"),
+    unit: readFormString(formData, "unit"),
     amount: readFormString(formData, "amount"),
     currency: readFormString(formData, "currency"),
     donated_at: readFormString(formData, "donated_at"),
@@ -78,6 +101,11 @@ function readFormValues(formData: FormData): DonationActionValues {
 
 function toInputValues(values: DonationActionValues): DonationInputValues {
   return {
+    category: values.category,
+    kind: values.kind,
+    item_description: values.item_description,
+    quantity: values.quantity,
+    unit: values.unit,
     amount: values.amount,
     currency: values.currency,
     donated_at: values.donated_at,
@@ -187,6 +215,11 @@ async function resolveDonorId(
       error: translateWriteError(
         {
           id: "",
+          category: "",
+          kind: "money",
+          item_description: "",
+          quantity: "",
+          unit: "",
           amount: "",
           currency: "",
           donated_at: "",
@@ -204,17 +237,15 @@ async function resolveDonorId(
 }
 
 function donationWritePayload(
-  parsed: {
-    amount: number;
-    currency: string;
-    donated_at: string;
-    method: string | null;
-    concept: string | null;
-    notes: string | null;
-  },
+  parsed: DonationParsedInput,
   donorId: string | null,
 ) {
   return {
+    kind: parsed.kind,
+    category: parsed.category,
+    item_description: parsed.item_description,
+    quantity: parsed.quantity,
+    unit: parsed.unit,
     amount: parsed.amount,
     currency: parsed.currency,
     donated_at: parsed.donated_at,
@@ -257,6 +288,7 @@ export async function createDonation(
     }
 
     revalidatePath("/donations");
+    revalidatePath("/");
     redirect(`/donations/${data.id}?estado=creada`);
   } catch (error) {
     if (isNextControlFlowError(error)) {
@@ -309,6 +341,7 @@ export async function updateDonation(
     }
 
     revalidatePath("/donations");
+    revalidatePath("/");
     redirect(`/donations/${data.id}?estado=actualizada`);
   } catch (error) {
     if (isNextControlFlowError(error)) {
@@ -351,6 +384,7 @@ export async function deleteDonation(
     }
 
     revalidatePath("/donations");
+    revalidatePath("/");
     redirect("/donations?estado=eliminada");
   } catch (error) {
     if (isNextControlFlowError(error)) {

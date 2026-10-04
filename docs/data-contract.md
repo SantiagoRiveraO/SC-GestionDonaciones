@@ -11,14 +11,19 @@ No hay migración de donaciones históricas. El sistema nace vacío. El seed (`s
 | `profiles` | Perfil de `auth.users` (`admin` o `staff`) |
 | `donors` | Donantes. Nombre único ignorando mayúsculas y espacios |
 | `donations` | Donaciones registradas |
+| `supply_categories` | Catálogo de categorías de insumos; el personal puede crear y renombrar |
 | `audit_log` | Trazabilidad de INSERT/UPDATE/DELETE en `donors` y `donations` |
 | `donation_list` | Vista de donaciones con `donor_name`, `created_by_name` y `updated_by_name` |
-| `search_donations` | Búsqueda con texto, moneda, método y rango de fechas |
-| `donation_summary` | Totales y conteos por moneda (mismos filtros) |
+| `search_donations` | Búsqueda con texto, tipo, categoría, moneda, método y rango de fechas |
+| `donation_summary` | Totales de dinero por moneda y conteo separado de donaciones de insumos (mismos filtros) |
 | `donation_filter_options` | Monedas y métodos distintos |
 | `ensure_donor` | Crea o reutiliza un donante por nombre |
 
 Tipos TypeScript: `src/types/database.ts` (derivados de `src/types/supabase.ts`, generado con `supabase gen types typescript --local`).
+
+Cada donación elige `kind`: `money` o `supplies`. Dinero exige monto y moneda. Insumos exige `item_description`, sin monto, moneda ni método de pago. `quantity` y `unit` son opcionales, pero deben indicarse juntos. Los campos de la otra modalidad se guardan en `null`, incluso al cambiar el tipo al editar. El filtro de URL `tipo` corresponde a `p_kind` en las consultas.
+
+`category` es una referencia opcional a `supply_categories`, solo para insumos. Hay seis categorías iniciales y el personal puede crear más o renombrarlas. El ID permanece estable; `category_name` en la vista refleja el nombre actual. La descripción indica el artículo concreto. La URL usa `categoria` y las consultas `p_category`; seleccionarla filtra insumos y limpia moneda y método. RLS oculta el catálogo a visitantes anónimos; usuarios autenticados leen, crean y cambian nombres, sin cambiar IDs ni eliminar categorías.
 
 ## Auth
 - Supabase Auth (email/password)

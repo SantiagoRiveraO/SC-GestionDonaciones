@@ -1,9 +1,9 @@
 import { DonationForm } from "@/components/donation-form";
 import { PageHeader } from "@/components/ui/page-header";
-import { listDonorNames } from "@/lib/donations/queries";
+import { listDonorNames, listSupplyCategories } from "@/lib/donations/queries";
 
 export default async function NewDonationPage() {
-  const donorNames = await listDonorNames();
+  const [donorNames, categories] = await Promise.all([listDonorNames(), listSupplyCategories()]);
 
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
@@ -12,7 +12,7 @@ export default async function NewDonationPage() {
         backHref="/donations"
         backLabel="Donaciones"
       />
-      <DonationForm mode="create" donorNames={donorNames} />
+      <DonationForm mode="create" donorNames={donorNames} categories={categories} />
     </main>
   );
 }

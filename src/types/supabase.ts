@@ -1,7 +1,8 @@
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
-  
+
   "graphql_public": {
           Tables: {
             [_ in never]: never
@@ -33,20 +34,26 @@ export type Database = {
                     "action"?: string,"actor_id"?: string | null,"id"?: never,"new_data"?: Json | null,"occurred_at"?: string,"old_data"?: Json | null,"record_id"?: string,"table_name"?: string
                   }
                   Relationships: [
-                    
+
                   ]
                 },"donations": {
                   Row: {
-                    "amount": number,"concept": string | null,"created_at": string,"created_by": string | null,"currency": string,"donated_at": string,"donor_id": string | null,"id": string,"method": string | null,"notes": string | null,"updated_at": string,"updated_by": string | null
+                    "amount": number | null,"category": string | null,"concept": string | null,"created_at": string,"created_by": string | null,"currency": string | null,"donated_at": string,"donor_id": string | null,"id": string,"item_description": string | null,"kind": string,"method": string | null,"notes": string | null,"quantity": number | null,"unit": string | null,"updated_at": string,"updated_by": string | null
                   }
                   Insert: {
-                    "amount": number,"concept"?: string | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"donated_at"?: string,"donor_id"?: string | null,"id"?: string,"method"?: string | null,"notes"?: string | null,"updated_at"?: string,"updated_by"?: string | null
+                    "amount"?: number | null,"category"?: string | null,"concept"?: string | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string | null,"donated_at"?: string,"donor_id"?: string | null,"id"?: string,"item_description"?: string | null,"kind"?: string,"method"?: string | null,"notes"?: string | null,"quantity"?: number | null,"unit"?: string | null,"updated_at"?: string,"updated_by"?: string | null
                   }
                   Update: {
-                    "amount"?: number,"concept"?: string | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"donated_at"?: string,"donor_id"?: string | null,"id"?: string,"method"?: string | null,"notes"?: string | null,"updated_at"?: string,"updated_by"?: string | null
+                    "amount"?: number | null,"category"?: string | null,"concept"?: string | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string | null,"donated_at"?: string,"donor_id"?: string | null,"id"?: string,"item_description"?: string | null,"kind"?: string,"method"?: string | null,"notes"?: string | null,"quantity"?: number | null,"unit"?: string | null,"updated_at"?: string,"updated_by"?: string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "donations_category_fkey"
+      columns: ["category"]
+isOneToOne: false
+      referencedRelation: "supply_categories"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "donations_donor_id_fkey"
       columns: ["donor_id"]
 isOneToOne: false
@@ -65,7 +72,7 @@ isOneToOne: false
                     "created_at"?: string,"created_by"?: string | null,"email"?: string | null,"full_name"?: string,"id"?: string,"notes"?: string | null,"phone"?: string | null,"updated_at"?: string,"updated_by"?: string | null
                   }
                   Relationships: [
-                    
+
                   ]
                 },"profiles": {
                   Row: {
@@ -78,17 +85,36 @@ isOneToOne: false
                     "created_at"?: string,"full_name"?: string | null,"id"?: string,"role"?: string,"updated_at"?: string
                   }
                   Relationships: [
-                    
+
+                  ]
+                },"supply_categories": {
+                  Row: {
+                    "created_at": string,"id": string,"name": string,"updated_at": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"name": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"name"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+
                   ]
                 }
           }
           Views: {
             "donation_list": {
                   Row: {
-                    "amount": number | null,"concept": string | null,"created_at": string | null,"created_by": string | null,"created_by_name": string | null,"currency": string | null,"donated_at": string | null,"donor_id": string | null,"donor_name": string | null,"id": string | null,"method": string | null,"notes": string | null,"updated_at": string | null,"updated_by": string | null,"updated_by_name": string | null
+                    "amount": number | null,"category": string | null,"category_name": string | null,"concept": string | null,"created_at": string | null,"created_by": string | null,"created_by_name": string | null,"currency": string | null,"donated_at": string | null,"donor_id": string | null,"donor_name": string | null,"id": string | null,"item_description": string | null,"kind": string | null,"method": string | null,"notes": string | null,"quantity": number | null,"unit": string | null,"updated_at": string | null,"updated_by": string | null,"updated_by_name": string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "donations_category_fkey"
+      columns: ["category"]
+isOneToOne: false
+      referencedRelation: "supply_categories"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "donations_donor_id_fkey"
       columns: ["donor_id"]
 isOneToOne: false
@@ -103,16 +129,18 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
 "donation_summary":
-{ Args: { "p_currency"?: string,"p_from"?: string,"p_method"?: string,"p_query"?: string,"p_to"?: string }; Returns: {
-              "currency": string,"donation_count": number,"total": number
+{ Args: { "p_category"?: string,"p_currency"?: string,"p_from"?: string,"p_kind"?: string,"p_method"?: string,"p_query"?: string,"p_to"?: string }; Returns: {
+              "currency": string,"donation_count": number,"kind": string,"total": number
             }[]
                            },
 "ensure_donor":
 { Args: { "p_full_name": string }; Returns: string
                            },
 "search_donations":
-{ Args: { "p_currency"?: string,"p_from"?: string,"p_method"?: string,"p_query"?: string,"p_to"?: string }; Returns: {
+{ Args: { "p_category"?: string,"p_currency"?: string,"p_from"?: string,"p_kind"?: string,"p_method"?: string,"p_query"?: string,"p_to"?: string }; Returns: {
               "amount": number | null,
+"category": string | null,
+"category_name": string | null,
 "concept": string | null,
 "created_at": string | null,
 "created_by": string | null,
@@ -122,8 +150,12 @@ isOneToOne: false
 "donor_id": string | null,
 "donor_name": string | null,
 "id": string | null,
+"item_description": string | null,
+"kind": string | null,
 "method": string | null,
 "notes": string | null,
+"quantity": number | null,
+"unit": string | null,
 "updated_at": string | null,
 "updated_by": string | null,
 "updated_by_name": string | null
@@ -252,11 +284,11 @@ export type CompositeTypes<
 export const Constants = {
   "graphql_public": {
           Enums: {
-            
+
           }
         },"public": {
           Enums: {
-            
+
           }
         }
 } as const

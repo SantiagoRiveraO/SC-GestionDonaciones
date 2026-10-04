@@ -1,157 +1,82 @@
 # Manual de uso
 
-Para el personal de FUNMIAVEN. No hace falta saber de informática: solo entrar, registrar y consultar donaciones.
+Para el personal de FUNMIAVEN. La aplicación registra donaciones de dinero y de insumos.
 
 ## Entrar y salir
 
-![Inicio de sesión](manual/img/01-login.jpg)
-
 1. Abre la dirección de la app.
-2. Escribe tu **Email** y tu **Contraseña**.
-3. Pulsa **Iniciar sesión**.
+2. Escribe tu **Correo electrónico** y **Contraseña**. **Mostrar** permite revisar la contraseña.
+3. Pulsa **Entrar**.
 
-Arriba a la derecha está **Cerrar sesión**. Úsalo al terminar, sobre todo en una computadora compartida.
-
-No hay enlace de “olvidé mi contraseña”. Si no puedes entrar, pide ayuda a quien administra el sistema.
-
-## El listado
-
-Al entrar ves **Donaciones**.
-
-![Listado de donaciones](manual/img/02-listado.jpg)
-
-Columnas: **Fecha**, **Donante**, **Monto**, **Concepto**, **Método** y el enlace **Ver**.
-
-Encima de la tabla aparece un resumen: cuántas donaciones hay y el total por cada moneda (por ejemplo `3 donaciones · USD 80,00 · VES 1.600,00`).
-
-Si hay muchas, se muestran de **25 en 25**. Usa **Anterior** y **Siguiente** (verás “Página X de Y”).
-
-**Nueva donación** (arriba a la derecha, o **Nueva** en el menú) abre el formulario.
-
-Si aún no hay nada: `No hay donaciones registradas todavía.`
-
-## Buscar y filtrar
-
-![Búsqueda y filtros](manual/img/03-busqueda.jpg)
-
-- **Buscar:** donante, concepto, método o notas.
-- **Desde** y **Hasta:** rango de fechas de la donación (incluye ambos días).
-- **Moneda:** una moneda, o **Todas**.
-- **Método:** un método, o **Todos**.
-- **Limpiar filtros:** quita todo y vuelve al listado completo.
-
-El resumen y la tabla se actualizan con lo filtrado. Si no coincide nada: `No hay resultados para los filtros aplicados.`
+Al entrar aparece **Inicio**, con un saludo, dos botones grandes, el resumen del mes y las últimas donaciones. **Cerrar sesión** está en el encabezado; úsalo al terminar en una computadora compartida. Si no puedes entrar, pide ayuda a quien administra el sistema.
 
 ## Registrar una donación
 
-Menú **Nueva** o el botón **Nueva donación**.
+Pulsa **Registrar donación** en el menú o **Registrar una donación** en Inicio. Primero elige **Dinero** o **Insumos**.
 
-![Formulario de nueva donación](manual/img/04-nueva-donacion.jpg)
+### Dinero
+
+- **Monto:** obligatorio. Acepta `25,50`, `25.50`, `1.250,50` o `1250`.
+- **Moneda:** USD, VES o EUR.
+- **¿Cómo se recibió el dinero?:** opcional. Efectivo, Transferencia, Pago móvil, Zelle u Otro. Otro permite escribir el método.
+
+### Insumos
+
+- **Categoría (opcional):** elige Alimentos, Ropa, Medicinas, Higiene, Útiles escolares u Otros. **Quitar categoría** permite dejarla vacía.
+- **Agregar nueva categoría:** escribe un nombre (por ejemplo, Materiales de construcción) y pulsa **Agregar categoría**. Se selecciona automáticamente y se conservan los datos de la donación. Si el nombre ya existe, el sistema te lo indica.
+- **¿Qué se recibió?:** describe los artículos. Ejemplo: sacos de harina, ropa de bebé o pañales talla M.
+- **Cantidad:** opcional. Ejemplo: `10` o `2,50`.
+- **¿Cómo se cuenta?:** si indicas cantidad, escribe sacos, kg, cajas o unidades. Si no conoces la cantidad, deja ambos campos vacíos.
+
+Ejemplo: **Alimentos → Sacos de harina → Cantidad: 3 → ¿Cómo se cuenta?: sacos**.
+
+Los insumos no requieren monto, moneda ni método de pago. Para artículos distintos con cantidades distintas, registra una donación por artículo. También puedes describir un lote completo y dejar la cantidad vacía.
+
+### Datos comunes
 
 | Campo | Qué poner |
-|-------|-----------|
-| **Donante (opcional)** | Nombre de quien donó. Se puede dejar vacío. Si el nombre ya existe, se reutiliza (no se duplica). La lista sugiere nombres ya cargados. |
-| **Monto** | Cantidad. Obligatorio. |
-| **Moneda** | USD, VES o EUR. Obligatorio. |
-| **Fecha de donación** | Día en que se recibió. No puede ser futura ni anterior al año 2000. |
-| **Método** | Cómo se recibió. Hay sugerencias (Efectivo, Transferencia, Pago móvil, Zelle, En especie y las que ya se hayan usado) y también puedes escribir otra cosa. |
-| **Concepto** | Para qué fue, si se sabe. |
-| **Notas** | Cualquier detalle extra. |
+|---|---|
+| **Fecha de la donación** | Viene marcada la fecha de hoy. No puede ser futura ni anterior al año 2000. |
+| **Donante (opcional)** | Nombre de quien donó. Si ya existe, se reutiliza. El campo sugiere nombres conocidos. |
+| **Concepto (opcional)** | Para qué fue, si se sabe. |
+| **Notas (opcional)** | Detalles adicionales. |
 
-Pulsa **Crear donación**. **Cancelar** vuelve al listado sin guardar.
+Pulsa **Guardar donación**. Si falta un dato, aparece un resumen de errores y un mensaje debajo del campo; lo escrito se conserva. **Cancelar** vuelve a la pantalla anterior.
 
-## Ver el detalle
+## Consultar y filtrar
 
-En el listado, **Ver**.
+Pulsa **Donaciones**. Cada tarjeta muestra fecha, donante, concepto y monto o insumos. Toca la tarjeta para abrir el detalle.
 
-![Detalle de una donación](manual/img/05-detalle.jpg)
+El resumen cuenta todas las donaciones encontradas y muestra los totales de dinero por moneda y el número de donaciones de insumos por separado. No suma artículos ni unidades diferentes.
 
-Verás fecha, donante, monto, método, concepto y notas.
+- **Buscar:** donante, insumos, concepto, método, notas o unidad.
+- **Más filtros:** abre los filtros de tipo, categoría, fecha, moneda y método.
+- **Tipo de donación:** Dinero e insumos, Dinero o Insumos.
+- **Categoría de insumos:** muestra solo las donaciones de la categoría elegida. La categoría también aparece en las tarjetas y en el detalle.
+- **Desde** y **Hasta:** rango inclusivo de fechas.
+- **Moneda del dinero** y **Método de pago:** aplican al dinero; están desactivados al elegir Insumos.
+- **Limpiar filtros:** vuelve al listado completo.
 
-- **Registrada:** quién la cargó y cuándo (`por … el …`).
-- **Última edición:** quién la cambió por última vez y cuándo.
+Se muestran hasta 25 donaciones por página. Usa **Anterior** y **Siguiente** si hay más.
 
-Si esa persona ya no está en el sistema, el nombre se reemplaza por `un usuario eliminado`.
+## Administrar categorías
 
-Desde aquí: **Editar**, **Eliminar** o **Volver**.
+Al pie del formulario está **Administrar categorías**. Guarda primero la donación si tienes cambios pendientes. En esa pantalla puedes agregar una categoría o escribir un nombre nuevo y pulsar **Guardar nombre**. El nombre actualizado aparece también en las donaciones que ya usan esa categoría.
 
-## Editar
+## Editar y eliminar
 
-En el detalle, **Editar**.
+Desde el detalle, pulsa **Editar**, cambia lo necesario y pulsa **Guardar donación**. Puedes cambiar entre Dinero e Insumos; se guardan los datos del tipo elegido.
 
-![Editar donación](manual/img/06-editar.jpg)
+El detalle indica quién registró y editó la donación y cuándo, en hora de Caracas.
 
-Son los mismos campos que al registrar. Cambia lo necesario y pulsa **Guardar cambios**. **Cancelar** vuelve al detalle sin guardar.
+**Eliminar** abre una ventana de confirmación con los datos de la donación. **No, volver** cancela. **Sí, eliminar** borra el registro; no se puede recuperar desde la app.
 
-## Eliminar
+## Si algo falla
 
-En el detalle, **Eliminar**. El sistema pregunta:
+- **Correo o contraseña incorrectos:** revisa ambos datos.
+- **No se pudieron cargar las donaciones:** pulsa Reintentar.
+- **No se pudo guardar:** comprueba la conexión y vuelve a intentar.
+- **Tu sesión expiró:** vuelve a iniciar sesión.
+- **No se encontró esta donación:** vuelve a Donaciones.
 
-`¿Eliminar esta donación? Esta acción no se puede deshacer.`
-
-Si confirmas, la donación desaparece del listado. **No se puede deshacer desde la app.** Si fue un error, avisa a quien administra.
-
-## Mensajes
-
-### Al entrar
-
-| Mensaje | Qué hacer |
-|---------|-----------|
-| `Correo o contraseña incorrectos.` | Revisa email y contraseña. No hay recuperación en la app. |
-| `Demasiados intentos. Espera un momento y vuelve a intentar.` | Espera unos minutos e inténtalo de nuevo. |
-| `No se pudo conectar con el servidor. Intenta de nuevo.` | Revisa internet. Si sigue, avisa a quien administra. |
-| `No se pudo iniciar sesión.` | Inténtalo de nuevo. Si se repite, avisa. |
-
-### En el listado
-
-| Mensaje | Qué hacer |
-|---------|-----------|
-| `No hay donaciones registradas todavía.` | Aún no hay datos. Usa **Nueva donación**. |
-| `No hay resultados para los filtros aplicados.` | Cambia la búsqueda o pulsa **Limpiar filtros**. |
-| `No hay resultados en esta página.` | Usa **Anterior** o **Limpiar filtros**. |
-| `No se pudieron cargar las donaciones.` | Pulsa **Reintentar**. Si sigue, avisa. |
-| `Donación eliminada.` | Confirmación: ya no está en el listado. |
-
-### Al guardar o editar
-
-| Mensaje | Qué hacer |
-|---------|-----------|
-| `Donación registrada.` | Listo. Ya estás en el detalle. |
-| `Cambios guardados.` | Listo. |
-| `Ingresa un monto válido.` | Usa un número mayor o igual a 0, con hasta 2 decimales. |
-| `Ingresa una moneda de 3 letras.` | Elige USD, VES o EUR. |
-| `Ingresa una fecha válida.` | Elige un día en el calendario. |
-| `La fecha no puede ser anterior al 2000.` | Usa una fecha desde el 1/1/2000. |
-| `La fecha no puede ser futura.` | Usa hoy o un día pasado. |
-| `Máximo 50 caracteres.` | Acorta el método. |
-| `Máximo 200 caracteres.` | Acorta el concepto o el nombre del donante. |
-| `Máximo 2000 caracteres.` | Acorta las notas. |
-| `No tienes permiso para esta acción.` | Tu usuario no puede hacer eso. Avisa a quien administra. |
-| `Tu sesión expiró. Vuelve a iniciar sesión.` | Cierra sesión si hace falta y vuelve a entrar. |
-| `No se pudo guardar. Intenta de nuevo.` | Inténtalo otra vez. Si se repite, avisa. |
-
-### Al eliminar o al abrir un detalle
-
-| Mensaje | Qué hacer |
-|---------|-----------|
-| `¿Eliminar esta donación? Esta acción no se puede deshacer.` | Confirma solo si estás seguro. |
-| `Donación eliminada.` | Ya no está. |
-| `No se pudo eliminar. Intenta de nuevo.` | Inténtalo otra vez. Si se repite, avisa. |
-| `No se encontró esta donación.` | No existe o la borraron. Vuelve al listado. |
-
-## Preguntas frecuentes
-
-**Olvidé la contraseña. ¿Qué hago?**  
-La app no tiene recuperación. Pide a quien administra que te cree el acceso de nuevo.
-
-**¿Puedo dejar el donante vacío?**  
-Sí. Queda sin nombre (en el listado se ve un guion).
-
-**Escribí un donante que ya existía. ¿Se duplica?**  
-No. Si el nombre es el mismo (da igual mayúsculas o espacios de más), se reutiliza.
-
-**Eliminé una donación por error. ¿La recupero?**  
-No desde la app. Avisa de inmediato a quien administra.
-
-**Busqué y no aparece nada.**  
-Revisa **Desde**, **Hasta**, **Moneda** y **Método**. Pulsa **Limpiar filtros** y busca otra vez. El listado muestra 25 por página.
+Si el problema se repite, pide ayuda a quien administra el sistema.

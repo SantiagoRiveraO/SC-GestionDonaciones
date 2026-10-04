@@ -23,6 +23,79 @@ const validValues = {
 };
 
 describe("parseDonationInput", () => {
+  it.each(["food", "clothing", "medicine", "hygiene", "school", "other"])("acepta la categoría %s para insumos", (category) => {
+    const result = parseDonationInput({ kind: "supplies", category, item_description: "Sacos de harina", donated_at: validValues.donated_at });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data.category).toBe(category);
+  });
+
+  it("rechaza IDs de categoría inválidos y limpia la categoría al cambiar a dinero", () => {
+    const invalid = parseDonationInput({ kind: "supplies", category: "id no válido", item_description: "Ropa", donated_at: validValues.donated_at });
+    expect(invalid.ok).toBe(false);
+    if (!invalid.ok) expect(invalid.fieldErrors.category).toBeTruthy();
+    const money = parseDonationInput({ ...validValues, category: "food" });
+    expect(money.ok).toBe(true);
+    if (money.ok) expect(money.data.category).toBeNull();
+  });
+  it("acepta IDs de categorías creadas por la fundación", () => {
+    const result = parseDonationInput({ kind: "supplies", category: "9427d8e1-36f6-4d13-811b-44fdf2f820bd", item_description: "Cemento", donated_at: validValues.donated_at });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data.category).toBe("9427d8e1-36f6-4d13-811b-44fdf2f820bd");
+  });
+  it("registra insumos sin monto ni moneda y descarta campos de dinero", () => {
+    const result = parseDonationInput({
+      ...validValues, kind: "supplies", item_description: " Arroz ", quantity: "2,50", unit: " kg ",
+      amount: "texto inválido", currency: "", method: "Efectivo",
+    });
+    expect(result).toEqual({
+      ok: true, data: {
+        category: null, kind: "supplies", item_description: "Arroz", quantity: 2.5, unit: "kg",
+        amount: null, currency: null, method: null, donated_at: validValues.donated_at,
+        concept: validValues.concept, notes: validValues.notes, donor_name: validValues.donor_name,
+      }
+    });
+  });
+
+  it("permite insumos con cantidad desconocida", () => {
+    const result = parseDonationInput({ kind: "supplies", item_description: "Ropa variada", donated_at: validValues.donated_at });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toMatchObject({ quantity: null, unit: null, amount: null, currency: null });
+  });
+
+  it("pide descripción para los insumos", () => {
+    const result = parseDonationInput({ kind: "supplies", donated_at: validValues.donated_at });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(Object.keys(result.fieldErrors)).toEqual(["item_description"]);
+  });
+
+  it.each(["0", "-1", "abc", "2,555", "10000000000"])("rechaza la cantidad de insumos %s", (quantity) => {
+    const result = parseDonationInput({ kind: "supplies", item_description: "Arroz", donated_at: validValues.donated_at, quantity, unit: "kg" });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.fieldErrors.quantity).toBeTruthy();
+  });
+
+  it("pide cantidad y unidad juntas", () => {
+    const withoutUnit = parseDonationInput({ kind: "supplies", item_description: "Arroz", donated_at: validValues.donated_at, quantity: "10" });
+    const withoutQuantity = parseDonationInput({ kind: "supplies", item_description: "Arroz", donated_at: validValues.donated_at, unit: "kg" });
+    expect(withoutUnit.ok).toBe(false);
+    expect(withoutQuantity.ok).toBe(false);
+    if (!withoutUnit.ok) expect(withoutUnit.fieldErrors.unit).toBeTruthy();
+    if (!withoutQuantity.ok) expect(withoutQuantity.fieldErrors.quantity).toBeTruthy();
+  });
+
+  it("rechaza tipo inválido y En especie como pago de dinero", () => {
+    expect(parseDonationInput({ ...validValues, kind: "otra" }).ok).toBe(false);
+    expect(parseDonationInput({ ...validValues, method: "En especie" }).ok).toBe(false);
+  });
+
+  it("limita descripción y unidad y descarta insumos al cambiar a dinero", () => {
+    const invalid = parseDonationInput({ ...validValues, kind: "supplies", item_description: "x".repeat(201), quantity: "2", unit: "u".repeat(41) });
+    expect(invalid.ok).toBe(false);
+    if (!invalid.ok) expect(invalid.fieldErrors).toMatchObject({ item_description: "Máximo 200 caracteres.", unit: "Máximo 40 caracteres." });
+    const money = parseDonationInput({ ...validValues, kind: "money", item_description: "Ropa", quantity: "2", unit: "cajas" });
+    expect(money.ok).toBe(true);
+    if (money.ok) expect(money.data).toMatchObject({ item_description: null, quantity: null, unit: null });
+  });
   it("acepta un caso válido, recorta espacios y pasa la moneda a mayúsculas", () => {
     const result = parseDonationInput({
       amount: " 10.50 ",
@@ -37,6 +110,7 @@ describe("parseDonationInput", () => {
     expect(result).toEqual({
       ok: true,
       data: {
+        category: null, kind: "money", item_description: null, quantity: null, unit: null,
         amount: 10.5,
         currency: "USD",
         donated_at: "2024-06-15",
@@ -62,6 +136,7 @@ describe("parseDonationInput", () => {
     expect(result).toEqual({
       ok: true,
       data: {
+        category: null, kind: "money", item_description: null, quantity: null, unit: null,
         amount: 0,
         currency: "VES",
         donated_at: "2000-01-01",
@@ -121,6 +196,7 @@ describe("parseDonationInput", () => {
       expect(result).toEqual({
         ok: true,
         data: {
+          category: null, kind: "money", item_description: null, quantity: null, unit: null,
           amount: expected,
           currency: "USD",
           donated_at: "2024-06-15",

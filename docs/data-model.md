@@ -36,10 +36,15 @@ Extiende `auth.users`. Una fila por usuario autenticado. El trigger `on_auth_use
 |-------|------|-------------|---------|----------------------------|
 | `id` | `uuid` | sí | `gen_random_uuid()` | PK |
 | `donor_id` | `uuid` | no | — | FK a `donors(id)` `on delete set null` |
-| `amount` | `numeric(12, 2)` | sí | — | `amount >= 0` |
-| `currency` | `text` | sí | `'USD'` | Tres letras mayúsculas: `^[A-Z]{3}$` |
+| `kind` | `text` | sí | `'money'` | `'money'` (dinero) o `'supplies'` (insumos) |
+| `category` | `text` | no | — | FK a `supply_categories(id)`, solo insumos. `null` para dinero o sin categoría |
+| `amount` | `numeric(12, 2)` | solo dinero | — | `amount >= 0`. `null` para insumos |
+| `currency` | `text` | solo dinero | `'USD'` | Tres letras mayúsculas: `^[A-Z]{3}$`. En insumos enviar `null` explícitamente |
+| `item_description` | `text` | solo insumos | — | Descripción de 1 a 200 caracteres. `null` para dinero |
+| `quantity` | `numeric(12, 2)` | no | — | Mayor que cero cuando se indica. `null` para dinero |
+| `unit` | `text` | si hay cantidad | — | De 1 a 40 caracteres. Cantidad y unidad se indican juntas o ambas quedan en `null` |
 | `donated_at` | `date` | sí | `current_date` | `>= 2000-01-01`. El trigger rechaza fechas futuras |
-| `method` | `text` | no | — | Máximo 50 caracteres |
+| `method` | `text` | no | — | Máximo 50 caracteres, solo dinero. `En especie` no es un método de pago |
 | `concept` | `text` | no | — | Máximo 200 caracteres |
 | `notes` | `text` | no | — | Máximo 2000 caracteres |
 | `created_by` | `uuid` | no | — | FK a `auth.users(id)` `on delete set null`. Lo fija el trigger; no cambia en UPDATE |
@@ -47,7 +52,12 @@ Extiende `auth.users`. Una fila por usuario autenticado. El trigger `on_auth_use
 | `created_at` | `timestamptz` | sí | `now()` | No cambia en UPDATE |
 | `updated_at` | `timestamptz` | sí | `now()` | Lo actualiza el trigger |
 
+### `supply_categories`
+
+Catálogo administrable: `id` (text, PK, UUID automática en nuevas categorías), `name` (text, entre 1 y 80 caracteres, único ignorando espacios externos y mayúsculas), `created_at` y `updated_at`. Se incluyen Alimentos, Ropa, Medicinas, Higiene, Útiles escolares y Otros como opciones iniciales. El personal puede agregar categorías y cambiar nombres; no puede modificar IDs ni eliminarlas. RLS permite SELECT/INSERT/UPDATE del nombre a usuarios autenticados; `anon` no ve filas. La vista añade `category_name` mediante un join, conservando el ID al renombrar.
+
 ### `audit_log`
+
 
 `actor_id` no tiene FK para sobrevivir al borrado del usuario. Solo lo escribe el trigger `audit_row_change`.
 
@@ -96,6 +106,11 @@ erDiagram
   donations {
     uuid id PK
     uuid donor_id FK
+    text kind
+    text category
+    text item_description
+    numeric quantity
+    text unit
     numeric amount
     text currency
     date donated_at
@@ -152,13 +167,15 @@ Las funciones de consulta (`search_donations`, `donation_summary`, `donation_fil
 
 Vista de `donations` con `donor_name`, `created_by_name` y `updated_by_name` (joins a `donors` y `profiles`). `security_invoker = true`: aplica el RLS del caller.
 
-### `search_donations(p_query, p_currency, p_method, p_from, p_to)`
+### `search_donations(p_query, p_currency, p_method, p_from, p_to, p_kind, p_category)`
 
-Devuelve filas de `donation_list`. El texto busca en concepto, método, notas, moneda y nombre del donante (sin comodines: `%` y `_` son literales). La moneda compara en mayúsculas; el método, sin distinguir mayúsculas. El rango de fechas es inclusivo.
+`p_category` filtra la categoría de insumos; `null` incluye todas. Los filtros de búsqueda y resumen usan la misma consulta.
+
+Devuelve filas de `donation_list`. El texto busca en concepto, método, notas, moneda, nombre del donante, descripción de insumos y unidad (sin comodines: `%` y `_` son literales). `p_kind` admite `money`, `supplies` o `null` (ambos). La moneda compara en mayúsculas; el método, sin distinguir mayúsculas. El rango de fechas es inclusivo.
 
 ### `donation_summary(...)`
 
-Mismos filtros que `search_donations`. Devuelve `currency`, `total` y `donation_count` por moneda.
+Mismos filtros que `search_donations`. Devuelve `kind`, `currency`, `total` y `donation_count`. Dinero se agrupa por moneda. Insumos se cuentan por separado con `currency = null` y `total = 0`: no se suman cantidades de artículos ni unidades diferentes.
 
 ### `donation_filter_options()`
 

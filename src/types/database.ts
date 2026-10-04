@@ -7,4 +7,7 @@ export type DonationListRow =
   Database["public"]["Views"]["donation_list"]["Row"];
 export type AuditLogEntry = Database["public"]["Tables"]["audit_log"]["Row"];
 export type DonationSummaryRow =
-  Database["public"]["Functions"]["donation_summary"]["Returns"][number];
+  Omit<Database["public"]["Functions"]["donation_summary"]["Returns"][number], "currency"> & {
+    // SQL function return types do not infer nullability; supplies have no currency.
+    currency: string | null;
+  };

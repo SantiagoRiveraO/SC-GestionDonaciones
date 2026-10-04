@@ -124,18 +124,22 @@ insert into public.donations (
   concept,
   notes,
   created_by,
-  updated_by
+  updated_by,
+  kind,
+  item_description
 )
 select
   donors.id,
-  seed.amount,
-  seed.currency,
+  case when seed.method = 'En especie' then null else seed.amount end,
+  case when seed.method = 'En especie' then null else seed.currency end,
   current_date - seed.days_ago,
-  seed.method,
+  case when seed.method = 'En especie' then null else seed.method end,
   seed.concept,
   seed.notes,
   seed.created_by,
-  seed.created_by
+  seed.created_by,
+  case when seed.method = 'En especie' then 'supplies' else 'money' end,
+  case when seed.method = 'En especie' then seed.concept else null end
 from (
   values
     ('Carmen Rivas'::text, 80.00::numeric, 'USD', 2, 'Efectivo', 'Compra de útiles', null::text, 'a0000000-0000-4000-8000-000000000001'::uuid),

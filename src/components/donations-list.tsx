@@ -14,14 +14,16 @@ import type {
   DonationFilterOptions,
   DonationListResult,
 } from "@/lib/donations/queries";
-import { formatMoney } from "@/lib/format";
+import { donationSummaryLabels } from "@/lib/donations/presentation";
 import type { DonationSummaryRow } from "@/types/database";
+import type { SupplyCategoryOption } from "@/lib/donations/categories";
 
 type DonationsListProps = {
   filters: DonationSearchFilters;
   list: DonationListResult;
   options: DonationFilterOptions;
   summary: DonationSummaryRow[];
+  categories: SupplyCategoryOption[];
 };
 
 function EmptyState({
@@ -47,17 +49,13 @@ export function DonationsList({
   list,
   options,
   summary,
+  categories,
 }: DonationsListProps) {
   const filtersActive = hasActiveSearchFilters(filters);
   const outOfRange = list.total > 0 && list.rows.length === 0;
   const countLabel =
     list.total === 1 ? "1 donación" : `${list.total} donaciones`;
-  const totals = [...summary]
-    .sort((a, b) => a.currency.localeCompare(b.currency))
-    .map((row) => ({
-      currency: row.currency,
-      label: formatMoney(row.total, row.currency),
-    }));
+  const totals = donationSummaryLabels(summary);
 
   return (
     <div className="space-y-4">
@@ -65,6 +63,7 @@ export function DonationsList({
         filters={filters}
         currencies={options.currencies}
         methods={options.methods}
+        categories={categories}
       />
 
       <Card
@@ -79,10 +78,10 @@ export function DonationsList({
           <div className="flex flex-wrap gap-2">
             {totals.map((row) => (
               <Badge
-                key={row.currency}
+                key={row}
                 className="bg-surface text-brand"
               >
-                {row.label}
+                {row}
               </Badge>
             ))}
           </div>

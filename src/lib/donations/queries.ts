@@ -1,4 +1,5 @@
 import "server-only";
+import type { SupplyCategoryOption } from "@/lib/donations/categories";
 
 import { createClient } from "@/lib/supabase/server";
 import type { DonationSearchFilters } from "@/lib/donations/filters";
@@ -23,6 +24,8 @@ export type DonationFilterOptions = {
 
 function toRpcFilters(filters: DonationSearchFilters) {
   return {
+    p_kind: filters.kind ?? undefined,
+    p_category: filters.category ?? undefined,
     p_query: filters.q ?? undefined,
     p_currency: filters.currency ?? undefined,
     p_method: filters.method ?? undefined,
@@ -117,6 +120,8 @@ export type MonthSummary = {
 };
 
 const EMPTY_SEARCH_FILTERS: DonationSearchFilters = {
+  category: null,
+  kind: null,
   q: null,
   currency: null,
   method: null,
@@ -212,4 +217,11 @@ export async function listDonorNames(): Promise<string[]> {
   }
 
   return (data ?? []).map((row) => row.full_name);
+}
+
+export async function listSupplyCategories(): Promise<SupplyCategoryOption[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("supply_categories").select("id, name").order("name");
+  if (error) throwQueryError("No se pudieron cargar las categorías.");
+  return (data ?? []).map(({ id, name }) => ({ value: id, label: name }));
 }

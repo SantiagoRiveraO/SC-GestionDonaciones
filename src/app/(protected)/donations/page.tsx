@@ -12,6 +12,7 @@ import {
   getDonationSummary,
   getFilterOptions,
   listDonations,
+  listSupplyCategories,
 } from "@/lib/donations/queries";
 
 type DonationsPageProps = {
@@ -24,6 +25,8 @@ export default async function DonationsPage({
   const params = await searchParams;
   const parsed = parseDonationFilters(params);
   const filters = {
+    category: parsed.category,
+    kind: parsed.kind,
     q: parsed.q,
     currency: parsed.currency,
     method: parsed.method,
@@ -31,10 +34,11 @@ export default async function DonationsPage({
     to: parsed.to,
   };
 
-  const [list, summary, options] = await Promise.all([
+  const [list, summary, options, categories] = await Promise.all([
     listDonations(filters, parsed.page),
     getDonationSummary(filters),
     getFilterOptions(),
+    listSupplyCategories(),
   ]);
 
   if (list.pageCount > 0 && parsed.page > list.pageCount) {
@@ -45,7 +49,7 @@ export default async function DonationsPage({
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
       <PageHeader
         title="Donaciones"
-        description="Todas las donaciones registradas."
+        description="Dinero e insumos recibidos por la fundación."
         actions={
           <ButtonLink
             href="/donations/new"
@@ -63,6 +67,7 @@ export default async function DonationsPage({
         list={list}
         options={options}
         summary={summary}
+        categories={categories}
       />
     </main>
   );

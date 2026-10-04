@@ -5,22 +5,14 @@ import { Card } from "@/components/ui/card";
 import { getMonthSummary, listRecentDonations } from "@/lib/donations/queries";
 import {
   formatDate,
-  formatMoney,
   formatTodayLong,
 } from "@/lib/format";
+import { donationSummaryLabels, donationValueLabel } from "@/lib/donations/presentation";
 import { getDisplayName } from "@/lib/supabase/auth";
 import type { DonationListRow } from "@/types/database";
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
-
-function donationAmount(donation: DonationListRow) {
-  if (donation.amount == null || !donation.currency) {
-    return "—";
-  }
-
-  return formatMoney(donation.amount, donation.currency);
-}
 
 function donationDate(donation: DonationListRow) {
   return donation.donated_at ? formatDate(donation.donated_at) : "—";
@@ -35,9 +27,7 @@ export default async function HomePage() {
 
   const monthCountLabel =
     month.total === 1 ? "1 donación" : `${month.total} donaciones`;
-  const monthTotals = [...month.rows]
-    .sort((a, b) => a.currency.localeCompare(b.currency))
-    .map((row) => formatMoney(row.total, row.currency));
+  const monthTotals = donationSummaryLabels(month.rows);
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
@@ -120,10 +110,10 @@ export default async function HomePage() {
                     <p className="text-ink">
                       {donation.donor_name?.trim() || "Sin donante"}
                     </p>
-                    <p className="text-ink-soft">{donation.method || "—"}</p>
+                    <p className="break-words text-ink-soft">{donation.kind === "supplies" ? donation.item_description : donation.method || "Dinero"}</p>
                   </div>
                   <p className="text-lg font-bold text-ink">
-                    {donationAmount(donation)}
+                    {donationValueLabel(donation)}
                   </p>
                 </>
               );

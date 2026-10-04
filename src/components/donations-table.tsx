@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { formatDate, formatMoney } from "@/lib/format";
+import { formatDate } from "@/lib/format";
+import { donationValueLabel } from "@/lib/donations/presentation";
 import type { DonationListRow } from "@/types/database";
 
 const focusRing =
@@ -19,14 +20,6 @@ type DonationsTableProps = {
   rows: DonationListRow[];
   total: number;
 };
-
-function donationAmount(donation: DonationListRow) {
-  if (donation.amount == null || !donation.currency) {
-    return "—";
-  }
-
-  return formatMoney(donation.amount, donation.currency);
-}
 
 function donationDate(donation: DonationListRow) {
   return donation.donated_at ? formatDate(donation.donated_at) : "—";
@@ -60,15 +53,17 @@ function DonationRowContent({ donation }: { donation: DonationListRow }) {
         <p className="font-bold text-ink">
           {donation.donor_name?.trim() || "Sin donante"}
         </p>
-        {donation.concept ? (
+        {donation.item_description ? <p className="break-words text-ink">{donation.item_description}</p> : null}
+        {donation.concept && donation.concept !== donation.item_description ? (
           <p className="text-ink">{donation.concept}</p>
         ) : null}
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-2 text-right">
-        <p className="text-lg font-bold text-ink">{donationAmount(donation)}</p>
-        <Badge icon={<MethodIcon method={donation.method} />}>
-          {donation.method?.trim() || "—"}
+      <div className="flex min-w-0 flex-col gap-2 sm:items-end sm:text-right">
+        <p className="break-words text-lg font-bold text-ink">{donationValueLabel(donation)}</p>
+        <Badge icon={donation.kind === "supplies" ? <Gift aria-hidden className="size-4" /> : <MethodIcon method={donation.method} />}>
+          {donation.kind === "supplies" ? "Insumos" : donation.method?.trim() || "Dinero"}
         </Badge>
+        {donation.kind === "supplies" && donation.category_name ? <Badge>{donation.category_name}</Badge> : null}
       </div>
     </>
   );
@@ -89,13 +84,13 @@ export function DonationsTable({ rows, total }: DonationsTableProps) {
               <Card className="p-0">
                 <Link
                   href={href}
-                  className={`flex min-h-[72px] items-center justify-between gap-4 rounded-[12px] p-4 ${focusRing}`}
+                  className={`flex min-h-[72px] flex-col justify-between gap-4 rounded-[12px] p-4 sm:flex-row sm:items-center ${focusRing}`}
                 >
                   <DonationRowContent donation={donation} />
                 </Link>
               </Card>
             ) : (
-              <Card className="flex min-h-[72px] items-center justify-between gap-4 p-4">
+              <Card className="flex min-h-[72px] flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center">
                 <DonationRowContent donation={donation} />
               </Card>
             )}
