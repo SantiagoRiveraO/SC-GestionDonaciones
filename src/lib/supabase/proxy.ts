@@ -30,15 +30,14 @@ export async function updateSession(request: NextRequest) {
   });
 
   // Refresca la sesión; no quitar esta llamada.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser().catch(() => ({
-    data: { user: null },
+  const { data } = await supabase.auth.getClaims().catch(() => ({
+    data: null,
   }));
+  const hasSession = Boolean(data?.claims);
 
   const { pathname } = request.nextUrl;
 
-  if (!user && !isPublicPath(pathname)) {
+  if (!hasSession && !isPublicPath(pathname)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", pathname);
@@ -49,7 +48,7 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (user && pathname === "/login") {
+  if (hasSession && pathname === "/login") {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/donations";
     redirectUrl.search = "";

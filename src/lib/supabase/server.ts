@@ -17,7 +17,7 @@ export async function createClient() {
             cookieStore.set(name, value, options);
           });
         } catch {
-          // setAll puede fallar en Server Components; el middleware refresca la sesión.
+          // setAll puede fallar en Server Components; el proxy refresca la sesión.
         }
       },
     },
