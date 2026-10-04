@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DonationsList } from "@/components/donations-list";
 
 export default function DonationsPage() {
   return (
@@ -18,9 +19,7 @@ export default function DonationsPage() {
         </Link>
       </div>
 
-      <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-600">
-        No hay donaciones registradas todavía.
-      </div>
+      <DonationsList />
     </main>
   );
 }

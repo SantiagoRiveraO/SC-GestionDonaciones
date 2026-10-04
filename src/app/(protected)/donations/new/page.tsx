@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { NewDonationForm } from "@/components/new-donation-form";
+import { DonationForm } from "@/components/donation-form";
 
 export default function NewDonationPage() {
   return (
@@ -13,10 +13,10 @@ export default function NewDonationPage() {
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">Nueva donación</h1>
         <p className="text-sm text-zinc-600">
-          Prototipo de formulario. La integración con Supabase llega en MUN-11.
+          Alta de donación. Persistencia local de prototipo hasta MUN-11.
         </p>
       </div>
-      <NewDonationForm />
+      <DonationForm mode="create" />
     </main>
   );
 }
