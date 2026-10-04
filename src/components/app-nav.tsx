@@ -52,15 +52,18 @@ export function AppNav({ variant }: { variant: "desktop" | "mobile" }) {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  aria-label={item.primary ? "Registrar donación" : undefined}
                   aria-current={active ? "page" : undefined}
-                  className={`flex min-h-[64px] flex-col items-center justify-center gap-1 border-t-[3px] px-2 text-center leading-tight whitespace-nowrap ${focusRing} ${
+                  className={`flex min-h-[64px] flex-col items-center justify-center gap-1 overflow-visible border-t-[3px] px-1 text-center leading-none ${focusRing} ${
                     active
                       ? "border-brand font-bold text-brand"
                       : "border-transparent text-ink"
                   }`}
                 >
                   <Icon aria-hidden className="size-6" />
-                  {item.label}
+                  <span className="text-[15px] leading-none whitespace-nowrap">
+                    {item.primary ? "Registrar" : item.label}
+                  </span>
                 </Link>
               </li>
             );

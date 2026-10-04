@@ -1,3 +1,5 @@
+import { Alert } from "@/components/ui/alert";
+
 const STATUS_MESSAGES = {
   creada: "Donación registrada.",
   actualizada: "Cambios guardados.",
@@ -27,12 +29,5 @@ export function StatusMessage({
     return null;
   }
 
-  return (
-    <p
-      role="status"
-      className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800"
-    >
-      {STATUS_MESSAGES[status]}
-    </p>
-  );
+  return <Alert variant="success">{STATUS_MESSAGES[status]}</Alert>;
 }

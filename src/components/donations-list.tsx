@@ -1,21 +1,44 @@
+import { CirclePlus, HandHeart, Search } from "lucide-react";
+import type { ReactNode } from "react";
 import { DonationFilters } from "@/components/donation-filters";
 import { DonationsPagination } from "@/components/donations-pagination";
 import { DonationsTable } from "@/components/donations-table";
-import { hasActiveSearchFilters, type DonationSearchFilters } from "@/lib/donations/filters";
-import type { DonationFilterOptions, DonationListResult } from "@/lib/donations/queries";
+import { Badge } from "@/components/ui/badge";
+import { ButtonLink } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  hasActiveSearchFilters,
+  type DonationSearchFilters,
+} from "@/lib/donations/filters";
+import type {
+  DonationFilterOptions,
+  DonationListResult,
+} from "@/lib/donations/queries";
+import { formatMoney } from "@/lib/format";
+import type { DonationSummaryRow } from "@/types/database";
 
 type DonationsListProps = {
   filters: DonationSearchFilters;
   list: DonationListResult;
   options: DonationFilterOptions;
-  summaryLine: string;
+  summary: DonationSummaryRow[];
 };
 
-function EmptyState({ children }: { children: string }) {
+function EmptyState({
+  icon,
+  children,
+  action,
+}: {
+  icon: ReactNode;
+  children: string;
+  action: ReactNode;
+}) {
   return (
-    <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-600">
-      {children}
-    </div>
+    <Card className="flex flex-col items-center gap-4 px-5 py-10 text-center">
+      {icon}
+      <p className="text-lg text-ink">{children}</p>
+      {action}
+    </Card>
   );
 }
 
@@ -23,10 +46,18 @@ export function DonationsList({
   filters,
   list,
   options,
-  summaryLine,
+  summary,
 }: DonationsListProps) {
   const filtersActive = hasActiveSearchFilters(filters);
   const outOfRange = list.total > 0 && list.rows.length === 0;
+  const countLabel =
+    list.total === 1 ? "1 donación" : `${list.total} donaciones`;
+  const totals = [...summary]
+    .sort((a, b) => a.currency.localeCompare(b.currency))
+    .map((row) => ({
+      currency: row.currency,
+      label: formatMoney(row.total, row.currency),
+    }));
 
   return (
     <div className="space-y-4">
@@ -34,16 +65,67 @@ export function DonationsList({
         filters={filters}
         currencies={options.currencies}
         methods={options.methods}
-        summaryLine={summaryLine}
       />
 
+      <Card
+        className="space-y-3 border-brand-soft bg-brand-soft p-5"
+        aria-live="polite"
+        data-testid="donations-summary"
+      >
+        <p className="text-[30px] leading-tight font-bold text-ink">
+          {countLabel}
+        </p>
+        {totals.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {totals.map((row) => (
+              <Badge
+                key={row.currency}
+                className="bg-surface text-brand"
+              >
+                {row.label}
+              </Badge>
+            ))}
+          </div>
+        ) : null}
+      </Card>
+
       {list.total === 0 && !filtersActive ? (
-        <EmptyState>No hay donaciones registradas todavía.</EmptyState>
+        <EmptyState
+          icon={<HandHeart aria-hidden className="size-12 text-accent" />}
+          action={
+            <ButtonLink
+              href="/donations/new"
+              icon={<CirclePlus aria-hidden className="size-5" />}
+            >
+              Registrar una donación
+            </ButtonLink>
+          }
+        >
+          Todavía no hay donaciones. ¡Registra la primera!
+        </EmptyState>
       ) : list.total === 0 ? (
-        <EmptyState>No hay resultados para los filtros aplicados.</EmptyState>
+        <EmptyState
+          icon={<Search aria-hidden className="size-12 text-accent" />}
+          action={
+            <ButtonLink href="/donations" variant="secondary">
+              Limpiar filtros
+            </ButtonLink>
+          }
+        >
+          No encontramos donaciones con esos filtros.
+        </EmptyState>
       ) : outOfRange ? (
         <>
-          <EmptyState>No hay resultados en esta página.</EmptyState>
+          <EmptyState
+            icon={<Search aria-hidden className="size-12 text-accent" />}
+            action={
+              <ButtonLink href="/donations" variant="secondary">
+                Limpiar filtros
+              </ButtonLink>
+            }
+          >
+            No encontramos donaciones con esos filtros.
+          </EmptyState>
           <DonationsPagination
             page={list.page}
             pageCount={list.pageCount}

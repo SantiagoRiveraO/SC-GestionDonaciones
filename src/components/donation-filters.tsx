@@ -1,21 +1,24 @@
 "use client";
 
-import { startTransition, useEffect, useRef, useState } from "react";
+import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { startTransition, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
 import {
   donationsListHref,
   hasActiveSearchFilters,
   type DonationSearchFilters,
 } from "@/lib/donations/filters";
 
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+const fieldClassName =
+  "w-full min-h-[48px] rounded-lg border border-zinc-300 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
 
 type DonationFiltersProps = {
   filters: DonationSearchFilters;
   currencies: string[];
   methods: string[];
-  summaryLine: string;
 };
 
 function optionsWithSelected(options: string[], selected: string | null) {
@@ -26,17 +29,23 @@ function optionsWithSelected(options: string[], selected: string | null) {
   return [...options, selected];
 }
 
+function hasAdvancedFilters(filters: DonationSearchFilters) {
+  return Boolean(
+    filters.currency || filters.method || filters.from || filters.to,
+  );
+}
+
 export function DonationFilters({
   filters,
   currencies,
   methods,
-  summaryLine,
 }: DonationFiltersProps) {
   const router = useRouter();
   const filtersRef = useRef(filters);
   const debounceRef = useRef<number | undefined>(undefined);
   const [query, setQuery] = useState(filters.q ?? "");
   const [prevQueryParam, setPrevQueryParam] = useState(filters.q);
+  const [filtersOpen, setFiltersOpen] = useState(hasAdvancedFilters(filters));
   const filtersActive = hasActiveSearchFilters(filters);
   const currencyOptions = optionsWithSelected(currencies, filters.currency);
   const methodOptions = optionsWithSelected(methods, filters.method);
@@ -74,120 +83,125 @@ export function DonationFilters({
     }, 300);
   }
 
+  function clearFilters() {
+    setQuery("");
+    setPrevQueryParam(null);
+    startTransition(() => {
+      router.replace("/donations");
+    });
+  }
+
   return (
-    <section
-      aria-label="Búsqueda y filtros"
-      className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4"
-    >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <label className="block space-y-1 text-sm sm:col-span-2 lg:col-span-1">
-          <span className="font-medium text-zinc-900">Buscar</span>
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => handleQueryChange(event.target.value)}
-            placeholder="Donante, concepto, método, notas…"
-            className={`w-full rounded-md border border-zinc-300 bg-white px-3 py-2 ${focusRing}`}
-          />
-        </label>
+    <Card className="space-y-4 p-4">
+      <section aria-label="Búsqueda y filtros" className="space-y-4">
+        <div className="space-y-1.5">
+          <label htmlFor="donation-search" className="font-bold text-ink">
+            Buscar por donante, concepto o método
+          </label>
+          <div className="relative">
+            <Search
+              aria-hidden
+              className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-ink-soft"
+            />
+            <input
+              id="donation-search"
+              type="search"
+              value={query}
+              onChange={(event) => handleQueryChange(event.target.value)}
+              className={`${fieldClassName} pl-11`}
+            />
+          </div>
+        </div>
 
-        <label className="block space-y-1 text-sm">
-          <span className="font-medium text-zinc-900">Desde</span>
-          <input
-            type="date"
-            value={filters.from ?? ""}
-            onChange={(event) =>
-              replaceFilters({
-                ...filters,
-                from: event.target.value || null,
-              })
-            }
-            className={`w-full rounded-md border border-zinc-300 bg-white px-3 py-2 ${focusRing}`}
-          />
-        </label>
-
-        <label className="block space-y-1 text-sm">
-          <span className="font-medium text-zinc-900">Hasta</span>
-          <input
-            type="date"
-            value={filters.to ?? ""}
-            onChange={(event) =>
-              replaceFilters({
-                ...filters,
-                to: event.target.value || null,
-              })
-            }
-            className={`w-full rounded-md border border-zinc-300 bg-white px-3 py-2 ${focusRing}`}
-          />
-        </label>
-
-        <label className="block space-y-1 text-sm">
-          <span className="font-medium text-zinc-900">Moneda</span>
-          <select
-            value={filters.currency ?? ""}
-            onChange={(event) =>
-              replaceFilters({
-                ...filters,
-                currency: event.target.value || null,
-              })
-            }
-            className={`w-full rounded-md border border-zinc-300 bg-white px-3 py-2 ${focusRing}`}
-          >
-            <option value="">Todas</option>
-            {currencyOptions.map((currency) => (
-              <option key={currency} value={currency}>
-                {currency}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="block space-y-1 text-sm">
-          <span className="font-medium text-zinc-900">Método</span>
-          <select
-            value={filters.method ?? ""}
-            onChange={(event) =>
-              replaceFilters({
-                ...filters,
-                method: event.target.value || null,
-              })
-            }
-            className={`w-full rounded-md border border-zinc-300 bg-white px-3 py-2 ${focusRing}`}
-          >
-            <option value="">Todos</option>
-            {methodOptions.map((method) => (
-              <option key={method} value={method}>
-                {method}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p
-          className="text-sm text-zinc-700"
-          aria-live="polite"
-          data-testid="donations-summary"
-        >
-          {summaryLine}
-        </p>
-        {filtersActive ? (
-          <button
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <Button
             type="button"
-            onClick={() => {
-              setQuery("");
-              setPrevQueryParam(null);
-              startTransition(() => {
-                router.replace("/donations");
-              });
-            }}
-            className={`rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-zinc-100 ${focusRing}`}
+            variant="secondary"
+            aria-expanded={filtersOpen}
+            aria-controls="donation-advanced-filters"
+            onClick={() => setFiltersOpen((open) => !open)}
           >
-            Limpiar filtros
-          </button>
+            Más filtros
+          </Button>
+          {filtersActive ? (
+            <Button type="button" variant="secondary" onClick={clearFilters}>
+              Limpiar filtros
+            </Button>
+          ) : null}
+        </div>
+
+        {filtersOpen ? (
+          <div
+            id="donation-advanced-filters"
+            className="grid grid-cols-1 gap-4 md:grid-cols-2"
+          >
+            <Field id="filter-from" label="Desde">
+              <input
+                type="date"
+                value={filters.from ?? ""}
+                onChange={(event) =>
+                  replaceFilters({
+                    ...filters,
+                    from: event.target.value || null,
+                  })
+                }
+                className={fieldClassName}
+              />
+            </Field>
+            <Field id="filter-to" label="Hasta">
+              <input
+                type="date"
+                value={filters.to ?? ""}
+                onChange={(event) =>
+                  replaceFilters({
+                    ...filters,
+                    to: event.target.value || null,
+                  })
+                }
+                className={fieldClassName}
+              />
+            </Field>
+            <Field id="filter-currency" label="Moneda">
+              <select
+                value={filters.currency ?? ""}
+                onChange={(event) =>
+                  replaceFilters({
+                    ...filters,
+                    currency: event.target.value || null,
+                  })
+                }
+                className={fieldClassName}
+              >
+                <option value="">Todas</option>
+                {currencyOptions.map((currency) => (
+                  <option key={currency} value={currency}>
+                    {currency}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field id="filter-method" label="Método">
+              <select
+                value={filters.method ?? ""}
+                onChange={(event) =>
+                  replaceFilters({
+                    ...filters,
+                    method: event.target.value || null,
+                  })
+                }
+                className={fieldClassName}
+              >
+                <option value="">Todos</option>
+                {methodOptions.map((method) => (
+                  <option key={method} value={method}>
+                    {method}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
         ) : null}
-      </div>
-    </section>
+      </section>
+    </Card>
   );
 }

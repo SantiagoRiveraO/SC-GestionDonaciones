@@ -1,11 +1,8 @@
-import Link from "next/link";
 import {
   donationsListHref,
   type DonationSearchFilters,
 } from "@/lib/donations/filters";
-
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+import { Button, ButtonLink } from "@/components/ui/button";
 
 type DonationsPaginationProps = {
   page: number;
@@ -35,30 +32,28 @@ export function DonationsPagination({
   return (
     <nav
       aria-label="Paginación"
-      className="flex flex-wrap items-center justify-between gap-2"
+      className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
     >
       {canGoPrevious ? (
-        <Link
-          href={previousHref}
-          className={`rounded-sm text-sm font-medium text-zinc-900 hover:underline ${focusRing}`}
-        >
-          Anterior
-        </Link>
+        <ButtonLink href={previousHref} variant="secondary">
+          ← Anterior
+        </ButtonLink>
       ) : (
-        <span className="text-sm font-medium text-zinc-400">Anterior</span>
+        <Button type="button" variant="secondary" disabled>
+          ← Anterior
+        </Button>
       )}
-      <p className="text-sm text-zinc-600">
+      <p className="text-center font-medium text-ink">
         Página {page} de {pageCount}
       </p>
       {canGoNext ? (
-        <Link
-          href={nextHref}
-          className={`rounded-sm text-sm font-medium text-zinc-900 hover:underline ${focusRing}`}
-        >
-          Siguiente
-        </Link>
+        <ButtonLink href={nextHref} variant="secondary">
+          Siguiente →
+        </ButtonLink>
       ) : (
-        <span className="text-sm font-medium text-zinc-400">Siguiente</span>
+        <Button type="button" variant="secondary" disabled>
+          Siguiente →
+        </Button>
       )}
     </nav>
   );
