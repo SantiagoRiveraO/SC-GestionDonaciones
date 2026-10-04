@@ -10,10 +10,10 @@ export function AppHeader({ displayName }: { displayName: string }) {
   return (
     <>
       <header className="sticky top-0 z-30 bg-surface shadow-[0_2px_8px_rgba(24,24,27,0.08)]">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-2 md:px-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-nowrap items-center justify-between gap-3 px-4 py-2 md:px-6">
           <Link
             href="/"
-            className={`flex min-h-[48px] items-center gap-3 ${focusRing}`}
+            className={`flex min-h-[48px] shrink-0 items-center gap-3 whitespace-nowrap ${focusRing}`}
           >
             <Image
               src="/brand/logo-marca.png"
@@ -24,8 +24,10 @@ export function AppHeader({ displayName }: { displayName: string }) {
               unoptimized
             />
             <span className="flex flex-col leading-tight">
-              <span className="font-bold text-ink">FUNMIAVEN</span>
-              <span className="hidden text-[15px] text-ink-soft md:block">
+              <span className="font-bold whitespace-nowrap text-ink">
+                FUNMIAVEN
+              </span>
+              <span className="hidden text-[15px] whitespace-nowrap text-ink-soft xl:block">
                 Gestión de donaciones
               </span>
             </span>
@@ -33,8 +35,8 @@ export function AppHeader({ displayName }: { displayName: string }) {
 
           <AppNav variant="desktop" />
 
-          <div className="flex items-center gap-3">
-            <p className="hidden font-medium text-ink md:block">
+          <div className="flex shrink-0 items-center gap-3">
+            <p className="hidden font-medium whitespace-nowrap text-ink xl:block">
               Hola, {displayName}
             </p>
             <LogoutButton />

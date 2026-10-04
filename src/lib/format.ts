@@ -42,6 +42,77 @@ export function formatDateTime(iso: string): string {
   return `${parts.day}/${parts.month}/${parts.year} ${parts.hour}:${parts.minute}`;
 }
 
+const CARACAS_TIME_ZONE = "America/Caracas";
+
+const MONTH_NAMES = [
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
+] as const;
+
+const CARACAS_YMD_FORMAT = new Intl.DateTimeFormat("en-CA", {
+  timeZone: CARACAS_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+const CARACAS_WEEKDAY_FORMAT = new Intl.DateTimeFormat("es-VE", {
+  timeZone: CARACAS_TIME_ZONE,
+  weekday: "long",
+});
+
+function caracasYmd(now = new Date()) {
+  const parts = Object.fromEntries(
+    CARACAS_YMD_FORMAT.formatToParts(now).map((part) => [part.type, part.value]),
+  );
+
+  return {
+    year: parts.year,
+    month: parts.month,
+    day: parts.day,
+  };
+}
+
+export function todayInCaracas(): string {
+  const { year, month, day } = caracasYmd();
+  return `${year}-${month}-${day}`;
+}
+
+export function firstDayOfMonthInCaracas(): string {
+  const { year, month } = caracasYmd();
+  return `${year}-${month}-01`;
+}
+
+export function formatLongDate(isoDate: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate);
+  if (!match) {
+    return isoDate;
+  }
+
+  const monthIndex = Number(match[2]) - 1;
+  const monthName = MONTH_NAMES[monthIndex];
+  if (!monthName) {
+    return isoDate;
+  }
+
+  return `${Number(match[3])} de ${monthName} de ${match[1]}`;
+}
+
+export function formatTodayLong(): string {
+  const weekday = CARACAS_WEEKDAY_FORMAT.format(new Date());
+  return `${weekday} ${formatLongDate(todayInCaracas())}`;
+}
+
 export function formatSummaryLine(
   rows: { currency: string; total: number }[],
   total: number,

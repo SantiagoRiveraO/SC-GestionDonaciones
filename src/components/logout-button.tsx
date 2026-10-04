@@ -29,8 +29,10 @@ export function LogoutButton() {
       icon={<LogOut aria-hidden className="size-5" />}
       onClick={handleLogout}
       loading={loading}
+      aria-label="Cerrar sesión"
+      className="whitespace-nowrap"
     >
-      {loading ? "Cerrando…" : "Cerrar sesión"}
+      {loading ? "Cerrando…" : "Salir"}
     </Button>
   );
 }

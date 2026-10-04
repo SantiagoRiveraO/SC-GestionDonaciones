@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 
 function safeNextPath(next: string | null) {
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return "/donations";
+    return "/";
   }
   return next;
 }

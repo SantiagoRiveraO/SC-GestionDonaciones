@@ -1,10 +1,14 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  firstDayOfMonthInCaracas,
   formatDate,
   formatDateTime,
+  formatLongDate,
   formatMoney,
   formatSummaryLine,
+  formatTodayLong,
+  todayInCaracas,
 } from "@/lib/format";
 
 describe("formatMoney", () => {
@@ -25,6 +29,43 @@ describe("formatDateTime", () => {
   it("formatea un ISO en hora de Caracas como dd/mm/aaaa hh:mm", () => {
     expect(formatDateTime("2026-03-15T13:05:00.000Z")).toBe("15/03/2026 09:05");
     expect(formatDateTime("2026-03-16T02:30:00.000Z")).toBe("15/03/2026 22:30");
+  });
+});
+
+describe("formatLongDate", () => {
+  it("escribe la fecha completa sin usar Date ni zona horaria", () => {
+    expect(formatLongDate("2026-10-04")).toBe("4 de octubre de 2026");
+    expect(formatLongDate("2026-01-01")).toBe("1 de enero de 2026");
+    expect(formatLongDate("2026-01-01T23:00:00.000Z")).toBe(
+      "1 de enero de 2026",
+    );
+  });
+});
+
+describe("fechas en America/Caracas", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("toma el día de Caracas cuando UTC ya es el día siguiente", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-05T02:00:00.000Z"));
+
+    expect(todayInCaracas()).toBe("2026-10-04");
+    expect(firstDayOfMonthInCaracas()).toBe("2026-10-01");
+    expect(formatTodayLong()).toBe("domingo 4 de octubre de 2026");
+  });
+
+  it("cambia de mes a la medianoche de Caracas", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-01T03:59:00.000Z"));
+    expect(todayInCaracas()).toBe("2026-10-31");
+    expect(firstDayOfMonthInCaracas()).toBe("2026-10-01");
+
+    vi.setSystemTime(new Date("2026-11-01T04:00:00.000Z"));
+    expect(todayInCaracas()).toBe("2026-11-01");
+    expect(firstDayOfMonthInCaracas()).toBe("2026-11-01");
+    expect(formatTodayLong()).toBe("domingo 1 de noviembre de 2026");
   });
 });
 

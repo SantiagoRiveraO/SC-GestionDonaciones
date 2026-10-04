@@ -3,6 +3,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { DonationSearchFilters } from "@/lib/donations/filters";
 import { isDonationId } from "@/lib/donations/validation";
+import { firstDayOfMonthInCaracas, todayInCaracas } from "@/lib/format";
 import type { DonationListRow, DonationSummaryRow } from "@/types/database";
 import type { Json } from "@/types/supabase";
 
@@ -108,6 +109,48 @@ export async function listDonations(
   }
 
   return toListResult(data ?? [], count ?? 0, safePage);
+}
+
+export type MonthSummary = {
+  rows: DonationSummaryRow[];
+  total: number;
+};
+
+const EMPTY_SEARCH_FILTERS: DonationSearchFilters = {
+  q: null,
+  currency: null,
+  method: null,
+  from: null,
+  to: null,
+};
+
+export async function getMonthSummary(): Promise<MonthSummary> {
+  const rows = await getDonationSummary({
+    ...EMPTY_SEARCH_FILTERS,
+    from: firstDayOfMonthInCaracas(),
+    to: todayInCaracas(),
+  });
+
+  return {
+    rows,
+    total: rows.reduce((sum, row) => sum + row.donation_count, 0),
+  };
+}
+
+export async function listRecentDonations(
+  limit = 5,
+): Promise<DonationListRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .rpc("search_donations", toRpcFilters(EMPTY_SEARCH_FILTERS))
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throwQueryError("No se pudieron cargar las donaciones.");
+  }
+
+  return data ?? [];
 }
 
 export async function getDonationSummary(

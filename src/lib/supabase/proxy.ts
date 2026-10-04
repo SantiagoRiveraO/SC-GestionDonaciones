@@ -50,7 +50,7 @@ export async function updateSession(request: NextRequest) {
 
   if (hasSession && pathname === "/login") {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/donations";
+    redirectUrl.pathname = "/";
     redirectUrl.search = "";
     const redirectResponse = NextResponse.redirect(redirectUrl);
     supabaseResponse.cookies.getAll().forEach((cookie) => {
