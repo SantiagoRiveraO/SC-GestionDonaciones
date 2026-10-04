@@ -1,12 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabaseEnv } from "@/lib/supabase/env";
+import type { Database } from "@/types/supabase";
 
 export async function createClient() {
   const cookieStore = await cookies();
   const { url, anonKey } = getSupabaseEnv();
 
-  return createServerClient(url, anonKey, {
+  return createServerClient<Database>(url, anonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -17,7 +18,7 @@ export async function createClient() {
             cookieStore.set(name, value, options);
           });
         } catch {
-          // setAll puede fallar en Server Components; el middleware refresca la sesión.
+          // setAll puede fallar en Server Components; el proxy refresca la sesión.
         }
       },
     },

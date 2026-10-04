@@ -11,6 +11,26 @@ function safeNextPath(next: string | null) {
   return next;
 }
 
+function toLoginErrorMessage(error: {
+  code?: string;
+  status?: number;
+  name?: string;
+}) {
+  if (error.code === "invalid_credentials") {
+    return "Correo o contraseña incorrectos.";
+  }
+
+  if (error.code === "over_request_rate_limit" || error.status === 429) {
+    return "Demasiados intentos. Espera un momento y vuelve a intentar.";
+  }
+
+  if (error.name === "AuthRetryableFetchError") {
+    return "No se pudo conectar con el servidor. Intenta de nuevo.";
+  }
+
+  return "No se pudo iniciar sesión.";
+}
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -32,18 +52,14 @@ export function LoginForm() {
       });
 
       if (signInError) {
-        setError(signInError.message);
+        setError(toLoginErrorMessage(signInError));
         return;
       }
 
       router.replace(safeNextPath(searchParams.get("next")));
       router.refresh();
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "No se pudo iniciar sesión. Revisa la configuración de Supabase.",
-      );
+    } catch {
+      setError("No se pudo conectar con el servidor. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }

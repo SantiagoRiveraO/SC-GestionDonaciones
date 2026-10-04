@@ -10,7 +10,7 @@ export default function LoginPage() {
         </p>
         <h1 className="text-2xl font-semibold tracking-tight">Iniciar sesión</h1>
         <p className="text-sm text-zinc-600">
-          Acceso interno con Supabase Auth (email y contraseña).
+          Acceso para el personal de FUNMIAVEN.
         </p>
       </div>
       <Suspense
