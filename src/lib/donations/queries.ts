@@ -204,21 +204,6 @@ export async function getDonation(id: string): Promise<DonationListRow | null> {
   return data;
 }
 
-export async function listDonorNames(): Promise<string[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("donors")
-    .select("full_name")
-    .order("full_name", { ascending: true })
-    .limit(500);
-
-  if (error) {
-    throwQueryError("No se pudieron cargar los donantes.");
-  }
-
-  return (data ?? []).map((row) => row.full_name);
-}
-
 export async function listSupplyCategories(): Promise<SupplyCategoryOption[]> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("supply_categories").select("id, name").order("name");

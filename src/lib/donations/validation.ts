@@ -1,4 +1,5 @@
 import { parseSupplyCategory, type SupplyCategory } from "@/lib/donations/categories";
+import { todayInCaracas } from "@/lib/format";
 
 export type DonationInputValues = {
   category?: unknown;
@@ -12,7 +13,8 @@ export type DonationInputValues = {
   method?: unknown;
   concept?: unknown;
   notes?: unknown;
-  donor_name?: unknown;
+  donor_id?: unknown;
+  donor_mode?: unknown;
 };
 
 export type DonationParsedInput = {
@@ -27,7 +29,7 @@ export type DonationParsedInput = {
   method: string | null;
   concept: string | null;
   notes: string | null;
-  donor_name: string | null;
+  donor_id: string | null;
 };
 
 export type DonationFieldErrors = Partial<{
@@ -42,7 +44,7 @@ export type DonationFieldErrors = Partial<{
   method: string;
   concept: string;
   notes: string;
-  donor_name: string;
+  donor_id: string;
 }>;
 
 export type ParseDonationResult =
@@ -60,13 +62,16 @@ const AMOUNT_ERROR = "Escribe el monto con números. Ejemplo: 25,50";
 function isThousandGroups(parts: string[]) {
   return (
     parts.length > 1 &&
-    /^\d+$/.test(parts[0] ?? "") &&
+    /^\d{1,3}$/.test(parts[0] ?? "") &&
     parts.slice(1).every((part) => part.length === 3 && /^\d+$/.test(part))
   );
 }
 
 export function parseFlexibleAmount(raw: string): number | null {
-  const cleaned = raw.replace(/\s/g, "");
+  const trimmed = raw.trim();
+  // Spaces may separate thousands, but must never silently join mistyped digits.
+  if (/\s/.test(trimmed) && !/^\d{1,3}(?:[\s]\d{3})+(?:[.,]\d{1,2})?$/.test(trimmed)) return null;
+  const cleaned = trimmed.replace(/\s/g, "");
   if (!cleaned || !/^[\d.,]+$/.test(cleaned) || !/\d/.test(cleaned)) {
     return null;
   }
@@ -80,7 +85,10 @@ export function parseFlexibleAmount(raw: string): number | null {
       cleaned.lastIndexOf(","),
       cleaned.lastIndexOf("."),
     );
-    const integer = cleaned.slice(0, decimalIndex).replace(/[.,]/g, "");
+    const integerText = cleaned.slice(0, decimalIndex);
+    const separator = cleaned[decimalIndex] === "," ? "." : ",";
+    if (!isThousandGroups(integerText.split(separator))) return null;
+    const integer = integerText.replace(/[.,]/g, "");
     const decimal = cleaned.slice(decimalIndex + 1);
     if (!/^\d+$/.test(integer) || !/^\d+$/.test(decimal)) {
       return null;
@@ -136,10 +144,7 @@ function emptyToNull(value: string): string | null {
 }
 
 export function localTodayIsoDate(now = new Date()): string {
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return todayInCaracas(now);
 }
 
 export function isDonationId(id: string): boolean {
@@ -175,7 +180,8 @@ export function parseDonationInput(
   const methodText = asTrimmedString(values.method);
   const conceptText = asTrimmedString(values.concept);
   const notesText = asTrimmedString(values.notes);
-  const donorNameText = asTrimmedString(values.donor_name);
+  const donorIdText = asTrimmedString(values.donor_id);
+  const donorMode = asTrimmedString(values.donor_mode) || "registered";
   const kindText = asTrimmedString(values.kind) || "money";
   const kind = kindText === "supplies" ? "supplies" : "money";
   const itemText = asTrimmedString(values.item_description);
@@ -241,9 +247,8 @@ export function parseDonationInput(
     fieldErrors.notes = "Máximo 2000 caracteres.";
   }
 
-  if (donorNameText.length > 200) {
-    fieldErrors.donor_name = "Máximo 200 caracteres.";
-  }
+  if (donorMode !== "registered" && donorMode !== "anonymous") fieldErrors.donor_id = "Elige un donante o marca Sin donante identificado.";
+  else if (donorMode === "registered" && !isDonationId(donorIdText)) fieldErrors.donor_id = "Busca y selecciona un donante. Si no se conoce, marca Sin donante identificado.";
 
   if (Object.keys(fieldErrors).length > 0) {
     return { ok: false, fieldErrors };
@@ -263,7 +268,7 @@ export function parseDonationInput(
       method: kind === "money" ? emptyToNull(methodText) : null,
       concept: emptyToNull(conceptText),
       notes: emptyToNull(notesText),
-      donor_name: emptyToNull(donorNameText),
+      donor_id: donorMode === "anonymous" ? null : donorIdText,
     },
   };
 }

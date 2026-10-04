@@ -26,6 +26,8 @@ export type DonationActionValues = {
   concept: string;
   notes: string;
   donor_name: string;
+  donor_id: string;
+  donor_mode: string;
 };
 
 export type DonationActionState = {
@@ -56,7 +58,7 @@ const CONSTRAINT_FIELDS: Record<string, keyof DonationFieldErrors> = {
   donations_method_length: "method",
   donations_concept_length: "concept",
   donations_notes_length: "notes",
-  donors_full_name_length: "donor_name",
+  donations_donor_id_fkey: "donor_id",
 };
 
 const CONSTRAINT_MESSAGES: Record<string, string> = {
@@ -73,7 +75,7 @@ const CONSTRAINT_MESSAGES: Record<string, string> = {
   donations_method_length: "Máximo 50 caracteres.",
   donations_concept_length: "Máximo 200 caracteres.",
   donations_notes_length: "Máximo 2000 caracteres.",
-  donors_full_name_length: "Máximo 200 caracteres.",
+  donations_donor_id_fkey: "Este donante ya no está disponible. Busca y selecciona su ficha de nuevo.",
 };
 
 function readFormString(formData: FormData, key: string): string {
@@ -96,6 +98,8 @@ function readFormValues(formData: FormData): DonationActionValues {
     concept: readFormString(formData, "concept"),
     notes: readFormString(formData, "notes"),
     donor_name: readFormString(formData, "donor_name"),
+    donor_id: readFormString(formData, "donor_id"),
+    donor_mode: readFormString(formData, "donor_mode"),
   };
 }
 
@@ -112,7 +116,8 @@ function toInputValues(values: DonationActionValues): DonationInputValues {
     method: values.method,
     concept: values.concept,
     notes: values.notes,
-    donor_name: values.donor_name,
+    donor_id: values.donor_id,
+    donor_mode: values.donor_mode,
   };
 }
 
@@ -197,45 +202,13 @@ function translateWriteError(
   return actionError(values, "No se pudo guardar. Intenta de nuevo.");
 }
 
-async function resolveDonorId(
-  donorName: string | null,
-): Promise<{ donorId: string | null; error: DonationActionState | null }> {
-  if (!donorName) {
-    return { donorId: null, error: null };
-  }
-
+async function resolveDonorId(donorId: string | null): Promise<{ donorId: string | null; error: string | null }> {
+  if (!donorId) return { donorId: null, error: null };
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("ensure_donor", {
-    p_full_name: donorName,
-  });
-
-  if (error) {
-    return {
-      donorId: null,
-      error: translateWriteError(
-        {
-          id: "",
-          category: "",
-          kind: "money",
-          item_description: "",
-          quantity: "",
-          unit: "",
-          amount: "",
-          currency: "",
-          donated_at: "",
-          method: "",
-          concept: "",
-          notes: "",
-          donor_name: donorName,
-        },
-        error,
-      ),
-    };
-  }
-
-  return { donorId: data ?? null, error: null };
+  const { data, error } = await supabase.from("donors").select("id").eq("id", donorId).maybeSingle();
+  if (error || !data) return { donorId: null, error: "Este donante no está disponible. Busca y selecciona su ficha de nuevo." };
+  return { donorId: data.id, error: null };
 }
-
 function donationWritePayload(
   parsed: DonationParsedInput,
   donorId: string | null,
@@ -270,10 +243,10 @@ export async function createDonation(
 
   try {
     const { donorId, error: donorError } = await resolveDonorId(
-      parsed.data.donor_name,
+      parsed.data.donor_id,
     );
     if (donorError) {
-      return { ...donorError, values };
+      return actionError(values, null, { donor_id: donorError });
     }
 
     const supabase = await createClient();
@@ -318,10 +291,10 @@ export async function updateDonation(
 
   try {
     const { donorId, error: donorError } = await resolveDonorId(
-      parsed.data.donor_name,
+      parsed.data.donor_id,
     );
     if (donorError) {
-      return { ...donorError, values };
+      return actionError(values, null, { donor_id: donorError });
     }
 
     const supabase = await createClient();

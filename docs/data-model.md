@@ -183,7 +183,7 @@ JSON `{"currencies": [...], "methods": [...]}` con valores distintos, ordenados.
 
 ### `ensure_donor(p_full_name)`
 
-Crea o reutiliza un donante por `lower(btrim(full_name))`. Nombre vacío o solo espacios → `null`.
+Crea o reutiliza un donante por `lower(btrim(full_name))`. Nombre vacío o solo espacios → `null`. Se conserva por compatibilidad, pero el formulario actual usa exclusivamente el ID de una ficha seleccionada; nunca llama a esta función al guardar una donación.
 
 ### Ejemplo con supabase-js
 
@@ -206,9 +206,10 @@ const { data: summary } = await supabase.rpc("donation_summary", {
 
 const { data: options } = await supabase.rpc("donation_filter_options");
 
-const { data: donorId } = await supabase.rpc("ensure_donor", {
-  p_full_name: "Carmen Rivas",
-});
+const { data: donorOptions } = await supabase.rpc("search_donors", {
+  p_query: "Carmen", p_sort: "name",
+}, { count: "exact" }).range(0, 9);
+// Al elegir una ficha, su id se guarda como donations.donor_id.
 
 const { data: list } = await supabase
   .from("donation_list")

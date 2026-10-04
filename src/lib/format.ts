@@ -83,8 +83,8 @@ function caracasYmd(now = new Date()) {
   };
 }
 
-export function todayInCaracas(): string {
-  const { year, month, day } = caracasYmd();
+export function todayInCaracas(now = new Date()): string {
+  const { year, month, day } = caracasYmd(now);
   return `${year}-${month}-${day}`;
 }
 

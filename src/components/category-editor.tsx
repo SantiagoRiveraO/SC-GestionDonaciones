@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { saveCategory } from "@/lib/donations/category-actions";
@@ -25,11 +25,12 @@ export function CategoryEditor({ category }: { category?: SupplyCategoryOption }
 }
 
 // Dentro del formulario de donación: no anida formularios ni pierde lo escrito.
-export function AddCategoryControl({ onCreated }: { onCreated: (category: SupplyCategoryOption) => void }) {
+export function AddCategoryControl({ onCreated, onBusyChange }: { onCreated: (category: SupplyCategoryOption) => void; onBusyChange: (busy: boolean) => void }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [pending, setPending] = useState(false);
+  useEffect(() => { onBusyChange(pending); return () => onBusyChange(false); }, [pending, onBusyChange]);
   async function add() {
     if (pending) return;
     setPending(true);
@@ -53,7 +54,7 @@ export function AddCategoryControl({ onCreated }: { onCreated: (category: Supply
   return (
     <div className="space-y-3 rounded-lg border border-zinc-300 p-3">
       <Field id="inline-category-name" label="Nombre de la nueva categoría" hint="Ejemplo: Materiales de construcción." error={error}>
-        <input type="text" value={name} onChange={(event) => setName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void add(); } }} maxLength={80} autoFocus className={fieldClassName} />
+        <input type="text" value={name} disabled={pending} onChange={(event) => setName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void add(); } }} maxLength={80} autoFocus className={fieldClassName} />
       </Field>
       <div className="flex flex-wrap gap-3">
         <Button type="button" loading={pending} onClick={() => void add()}>{pending ? "Agregando…" : "Agregar categoría"}</Button>

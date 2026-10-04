@@ -37,11 +37,15 @@ Los insumos no requieren monto, moneda ni método de pago. Para artículos disti
 | Campo | Qué poner |
 |---|---|
 | **Fecha de la donación** | Viene marcada la fecha de hoy. No puede ser futura ni anterior al año 2000. |
-| **Donante (opcional)** | Nombre de quien donó. Si ya existe, se reutiliza. El campo sugiere nombres conocidos. |
+| **Donante** | Busca por nombre, teléfono o correo y pulsa **Seleccionar este donante** en su ficha. Si se desconoce, marca **Sin donante identificado**. |
 | **Concepto (opcional)** | Para qué fue, si se sabe. |
 | **Notas (opcional)** | Detalles adicionales. |
 
-Pulsa **Guardar donación**. Si falta un dato, aparece un resumen de errores y un mensaje debajo del campo; lo escrito se conserva. **Cancelar** vuelve a la pantalla anterior.
+Si todavía no está registrado, pulsa **Registrar un donante nuevo**. Completa su nombre y, si los conoces, teléfono y correo. **Guardar y seleccionar donante** crea su ficha y la selecciona sin salir del formulario ni perder la donación. Para una empresa, registra el nombre de la empresa; el representante puede anotarse en Notas de su ficha.
+
+Si aparecen donantes parecidos, revisa sus nombres y contactos antes de crear otro. Selecciona la ficha existente si es la misma persona u organización. Solo marca **Revisé la lista: es otro donante** cuando sean distintos. Escribir en la búsqueda no registra ningún donante.
+
+Pulsa **Guardar donación**. Si falta un dato, aparece un resumen de errores y un mensaje debajo del campo; lo escrito se conserva. **Cancelar** vuelve al listado o, al editar, al detalle de la donación. La fecha de hoy se calcula en hora de Caracas.
 
 ## Consultar y filtrar
 
@@ -73,11 +77,11 @@ El detalle indica quién registró y editó la donación y cuándo, en hora de C
 
 ## Registrar y consultar donantes
 
-Pulsa **Donantes** y luego **Registrar donante**. Solo el nombre de la persona o de la organización es obligatorio. Puedes completar teléfono, correo y notas ahora o después.
+Pulsa **Donantes** y luego **Registrar donante**. Solo el nombre de la persona o de la organización es obligatorio. Puedes completar teléfono, correo y notas ahora o después. También aquí se avisa de posibles fichas repetidas; el aviso ayuda a revisar, pero no sustituye comprobar la identidad con la persona.
 
 Busca por nombre, teléfono o correo y pulsa **Buscar**. **Ordenar por** permite consultar quienes han hecho más donaciones, quienes han aportado más dinero en una moneda, los más recientes o la lista por nombre. No se convierten ni se mezclan monedas.
 
-Abre una tarjeta para ver los datos de contacto, los aportes y el historial. **Editar datos** permite corregir el nombre sin perder sus donaciones. **Registrar donación de este donante** abre el formulario con su nombre ya escrito. También puedes abrir su ficha desde el detalle de una donación.
+Abre una tarjeta para ver los datos de contacto, los aportes y el historial. **Editar datos** permite corregir el nombre sin perder sus donaciones. **Registrar donación de este donante** abre el formulario con su ficha seleccionada. También puedes abrir su ficha desde el detalle de una donación.
 
 ## Ver el resumen
 

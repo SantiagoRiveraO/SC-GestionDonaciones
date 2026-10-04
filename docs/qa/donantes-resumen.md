@@ -13,3 +13,15 @@ Validación del 4 de octubre de 2026. Todos los datos de las pruebas son fictici
 - Top principal siempre por dinero acumulado en una moneda. Regresión con una donación de USD 100.000 frente a cincuenta de USD 1; enlaces antiguos con `tipo=all` o `tipo=supplies` no alteran el criterio del top.
 
 Los permisos de las nuevas consultas están restringidos al personal autenticado. No se modifican las opciones de autenticación del proyecto; la observación previa de protección contra contraseñas filtradas sigue documentada en `insumos.md`.
+
+## Selección de donantes y revisión de formularios
+
+Corrección posterior del 4 de octubre de 2026, sin cambios de esquema ni carga de datos en producción.
+
+- 80 pruebas Vitest y 118 pgTAP correctas, además de ESLint, TypeScript y build de producción.
+- Crear y editar donaciones guardan el ID seleccionado: un nombre escrito o modificado no crea ni reasigna fichas. ID inexistente y selección ausente devuelven errores sin escribir; omitir el donante exige la opción explícita.
+- Navegador local: buscar Carmen y guardar sin seleccionarla muestra error conservando monto y concepto; seleccionar la ficha y omitir monto conserva nombre y contacto.
+- Alta dentro de la donación: «Carmen Rivass» propone la ficha de «Carmen Rivas», sin insertar. Alta explícita de Organización Azucenas conserva monto y concepto, queda seleccionada y permite guardar.
+- Edición del aporte recién creado de dinero a insumos, con categoría nueva Equipos de huerto: conserva el ID del donante y los otros datos. Guardar se bloquea durante el alta de categorías o donantes.
+- El registro independiente también advierte de coincidencias. Cambiar nombre o contacto desmarca la confirmación de que es otra persona; no se fusionan fichas automáticamente.
+- Montos mal agrupados no se reinterpretan silenciosamente; las fechas se validan según Caracas incluso si UTC ya cambió de día.

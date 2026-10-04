@@ -6,8 +6,10 @@ import { requireUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { isDonationId } from "@/lib/donations/validation";
 import { parseDonorInput, type DonorFieldErrors, type DonorValues } from "@/lib/donors/validation";
+import { findPotentialDonors } from "@/lib/donors/queries";
+import type { DonorOption } from "@/lib/donors/selection";
 
-export type DonorActionState = { values: DonorValues; errors: DonorFieldErrors; formError: string | null };
+export type DonorActionState = { values: DonorValues; errors: DonorFieldErrors; formError: string | null; matches?: DonorOption[] };
 
 export async function saveDonor(id: string | null, _previous: DonorActionState | null, formData: FormData): Promise<DonorActionState> {
   await requireUser();
@@ -18,6 +20,10 @@ export async function saveDonor(id: string | null, _previous: DonorActionState |
   if (id && !isDonationId(id)) return { values, errors: {}, formError: "No se encontró el donante." };
   let savedId: string;
   try {
+    if (!id && formData.get("confirm_distinct") !== "yes") {
+      const matches = await findPotentialDonors(values);
+      if (matches.length) return { values, errors: {}, formError: "Encontramos donantes parecidos. Revisa si es uno de ellos antes de crear otro.", matches };
+    }
     const supabase = await createClient();
     const query = id ? supabase.from("donors").update(parsed.data).eq("id", id) : supabase.from("donors").insert(parsed.data);
     const { data, error } = await query.select("id").maybeSingle();

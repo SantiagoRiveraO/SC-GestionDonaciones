@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Banknote,
   Check,
@@ -19,6 +18,8 @@ import {
 import { localTodayIsoDate } from "@/lib/donations/validation";
 import type { SupplyCategoryOption } from "@/lib/donations/categories";
 import { AddCategoryControl } from "@/components/category-editor";
+import { DonorPicker } from "@/components/donor-picker";
+import type { DonorOption } from "@/lib/donors/selection";
 import { Alert } from "@/components/ui/alert";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -50,7 +51,7 @@ const FIELD_LABELS: Record<keyof DonationFieldErrors, string> = {
   currency: "Moneda",
   donated_at: "Fecha de la donación",
   method: "¿Cómo se recibió?",
-  donor_name: "Donante",
+  donor_id: "Donante",
   concept: "Concepto",
   notes: "Notas",
 };
@@ -59,9 +60,8 @@ type DonationFormProps = {
   mode: "create" | "edit";
   donationId?: string;
   initial?: DonationListRow;
-  donorNames: string[];
   categories: SupplyCategoryOption[];
-  donorName?: string;
+  selectedDonor?: DonorOption;
 };
 
 function AmountControl({
@@ -204,10 +204,12 @@ function CategoryFields({
   category,
   error,
   categories,
+  onBusyChange,
 }: {
   category: string;
   error?: string;
   categories: SupplyCategoryOption[];
+  onBusyChange: (busy: boolean) => void;
 }) {
   const [selected, setSelected] = useState(category);
   const [added, setAdded] = useState<SupplyCategoryOption[]>([]);
@@ -245,7 +247,7 @@ function CategoryFields({
           Quitar categoría
         </Button>
       ) : null}
-      <AddCategoryControl onCreated={(option) => {
+      <AddCategoryControl onBusyChange={onBusyChange} onCreated={(option) => {
         setAdded((current) => [...current, option]);
         setSelected(option.value);
         setCreatedName(option.label);
@@ -261,7 +263,10 @@ function CategoryFields({
 function DonationFields({
   values,
   fieldErrors,
-  donorNames,
+  selectedDonor,
+  onBusyChange,
+  onSelectionChange,
+  onCategoryBusyChange,
   categories,
 }: {
   values: {
@@ -275,11 +280,16 @@ function DonationFields({
     donated_at: string;
     method: string;
     donor_name: string;
+    donor_id: string;
+    donor_mode: string;
     concept: string;
     notes: string;
   };
   fieldErrors: DonationFieldErrors;
-  donorNames: string[];
+  selectedDonor?: DonorOption;
+  onBusyChange: (busy: boolean) => void;
+  onSelectionChange: (donor: DonorOption) => void;
+  onCategoryBusyChange: (busy: boolean) => void;
   categories: SupplyCategoryOption[];
 }) {
   const [kind, setKind] = useState(values.kind);
@@ -379,7 +389,7 @@ function DonationFields({
 
       <div hidden={kind !== "supplies"}>
         <fieldset disabled={kind !== "supplies"} className="flex flex-col gap-5">
-          <CategoryFields category={values.category} categories={categories} error={fieldErrors.category} />
+          <CategoryFields category={values.category} categories={categories} error={fieldErrors.category} onBusyChange={onCategoryBusyChange} />
           <Field
             id="item_description"
             label="¿Qué se recibió?"
@@ -440,31 +450,14 @@ function DonationFields({
         <input
           type="date"
           name="donated_at"
+          min="2000-01-01"
+          max={localTodayIsoDate()}
           defaultValue={values.donated_at}
           className={fieldClassName}
         />
       </Field>
 
-      <Field
-        id="donor_name"
-        label="Donante"
-        optional
-        hint="Si el nombre ya existe, se usa el mismo donante."
-        error={fieldErrors.donor_name}
-      >
-        <input
-          type="text"
-          name="donor_name"
-          list="donor-names"
-          defaultValue={values.donor_name}
-          className={fieldClassName}
-        />
-      </Field>
-      <datalist id="donor-names">
-        {donorNames.map((name) => (
-          <option key={name} value={name} />
-        ))}
-      </datalist>
+      <DonorPicker id={values.donor_id} name={values.donor_name} mode={values.donor_mode} initial={selectedDonor} error={fieldErrors.donor_id} onBusyChange={onBusyChange} onSelectionChange={onSelectionChange} />
 
       <Field id="concept" label="Concepto" optional error={fieldErrors.concept}>
         <input
@@ -491,11 +484,12 @@ export function DonationForm({
   mode,
   donationId,
   initial,
-  donorNames,
   categories,
-  donorName,
+  selectedDonor,
 }: DonationFormProps) {
-  const router = useRouter();
+  const [donorBusy, setDonorBusy] = useState(false);
+  const [categoryBusy, setCategoryBusy] = useState(false);
+  const [chosenDonor, setChosenDonor] = useState(selectedDonor);
   const summaryRef = useRef<HTMLDivElement>(null);
   const action =
     mode === "create"
@@ -519,7 +513,9 @@ export function DonationForm({
     method: initial?.method ?? "",
     concept: initial?.concept ?? "",
     notes: initial?.notes ?? "",
-    donor_name: initial?.donor_name ?? donorName ?? "",
+    donor_name: initial?.donor_name ?? selectedDonor?.full_name ?? "",
+    donor_id: initial?.donor_id ?? selectedDonor?.id ?? "",
+    donor_mode: initial && !initial.donor_id ? "anonymous" : "registered",
   };
   const fieldErrors = state?.fieldErrors ?? {};
   const errorEntries = (
@@ -560,26 +556,18 @@ export function DonationForm({
           </div>
         ) : null}
 
+        <fieldset disabled={pending} className="contents">
         <DonationFields
-          key={[
-            values.category,
-            values.kind,
-            values.item_description,
-            values.quantity,
-            values.unit,
-            values.amount,
-            values.currency,
-            values.donated_at,
-            values.method,
-            values.donor_name,
-            values.concept,
-            values.notes,
-          ].join("|")}
+          key={JSON.stringify(values)}
           values={values}
           fieldErrors={fieldErrors}
-          donorNames={donorNames}
+          selectedDonor={chosenDonor}
+          onBusyChange={setDonorBusy}
+          onSelectionChange={setChosenDonor}
+          onCategoryBusyChange={setCategoryBusy}
           categories={categories}
         />
+        </fieldset>
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button
@@ -587,17 +575,19 @@ export function DonationForm({
             size="lg"
             icon={<Check aria-hidden className="size-5" />}
             loading={pending}
+            disabled={donorBusy || categoryBusy}
           >
             {pending ? "Guardando…" : "Guardar donación"}
           </Button>
-          <Button
-            type="button"
+          <ButtonLink
+            href={mode === "edit" ? `/donations/${donationId}` : "/donations"}
             variant="secondary"
             size="lg"
-            onClick={() => router.back()}
+            aria-disabled={pending || donorBusy || categoryBusy || undefined}
+            onClick={(event) => { if (pending || donorBusy || categoryBusy) event.preventDefault(); }}
           >
             Cancelar
-          </Button>
+          </ButtonLink>
         </div>
       </form>
       <div className="mt-5 border-t border-zinc-200 pt-5">

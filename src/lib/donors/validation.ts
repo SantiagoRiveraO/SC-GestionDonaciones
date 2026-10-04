@@ -2,7 +2,7 @@ export type DonorValues = { full_name: string; phone: string; email: string; not
 export type DonorFieldErrors = Partial<Record<keyof DonorValues, string>>;
 
 export function parseDonorInput(values: DonorValues) {
-  const full_name = values.full_name.trim();
+  const full_name = values.full_name.trim().replace(/\s+/g, " ");
   const phone = values.phone.trim();
   const email = values.email.trim();
   const notes = values.notes.trim();
