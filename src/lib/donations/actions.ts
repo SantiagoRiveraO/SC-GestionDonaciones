@@ -268,11 +268,12 @@ export async function createDonation(
 }
 
 export async function updateDonation(
+  id: string,
   _prevState: DonationActionState | null,
   formData: FormData,
 ): Promise<DonationActionState> {
   await requireUser();
-  const values = readFormValues(formData);
+  const values = { ...readFormValues(formData), id };
   const parsed = parseDonationInput(toInputValues(values));
 
   if (!parsed.ok) {
@@ -326,7 +327,7 @@ export async function deleteDonation(
   const values = readFormValues(formData);
 
   if (!isDonationId(values.id)) {
-    return actionError(values, "No se pudo guardar. Intenta de nuevo.");
+    return actionError(values, "No se pudo eliminar. Intenta de nuevo.");
   }
 
   try {
@@ -338,11 +339,15 @@ export async function deleteDonation(
       .select("id");
 
     if (error) {
-      return translateWriteError(values, error);
+      const translated = translateWriteError(values, error);
+      if (translated.formError === "No se pudo guardar. Intenta de nuevo.") {
+        return actionError(values, "No se pudo eliminar. Intenta de nuevo.");
+      }
+      return translated;
     }
 
     if (!data?.length) {
-      return actionError(values, "No se pudo guardar. Intenta de nuevo.");
+      return actionError(values, "No se pudo eliminar. Intenta de nuevo.");
     }
 
     revalidatePath("/donations");
@@ -352,6 +357,6 @@ export async function deleteDonation(
       throw error;
     }
 
-    return actionError(values, "No se pudo guardar. Intenta de nuevo.");
+    return actionError(values, "No se pudo eliminar. Intenta de nuevo.");
   }
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DonationsList } from "@/components/donations-list";
+import { StatusMessage } from "@/components/status-message";
 import {
   donationsListHref,
   parseDonationFilters,
@@ -22,7 +23,8 @@ type DonationsPageProps = {
 export default async function DonationsPage({
   searchParams,
 }: DonationsPageProps) {
-  const parsed = parseDonationFilters(await searchParams);
+  const params = await searchParams;
+  const parsed = parseDonationFilters(params);
   const filters = {
     q: parsed.q,
     currency: parsed.currency,
@@ -54,6 +56,8 @@ export default async function DonationsPage({
           Nueva donación
         </Link>
       </div>
+
+      <StatusMessage estado={params.estado} />
 
       <DonationsList
         filters={filters}
