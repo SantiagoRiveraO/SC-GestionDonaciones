@@ -83,7 +83,7 @@ Abre una tarjeta para ver los datos de contacto, los aportes y el historial. **E
 
 Pulsa **Resumen** en el menú. También puedes entrar desde **Inicio**, mediante **Ver resumen y principales aportes**. Es una pantalla de consulta secundaria; abarca todo lo registrado.
 
-- **Donantes con más aportes:** muestra los cinco primeros. Elige todas las donaciones, solo dinero o solo insumos y pulsa **Ver comparación**. Para dinero, elige también la moneda. Toca el nombre para abrir su ficha.
+- **Donantes que más dinero han aportado:** muestra los cinco mayores montos acumulados, de mayor a menor, en la moneda seleccionada. Elige **Moneda del top** y pulsa **Ver top**. Una donación de USD 100.000 queda por encima de varias donaciones pequeñas cuyo total sea menor. Toca el nombre para abrir su ficha.
 - **Dinero recibido:** muestra un total por moneda, incluyendo las donaciones sin donante identificado.
 - **Insumos más donados:** cuenta cuántas veces aparece cada descripción dentro de una categoría. Escribe las descripciones de forma consistente para agruparlas mejor.
 - **Categorías más donadas:** cuenta las donaciones de insumos por categoría.

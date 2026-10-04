@@ -39,7 +39,7 @@ export function RankingBars({
                   <p className="break-words text-[17px] leading-snug font-bold text-ink">{row.label}</p>
                 )}
                 {row.detail && <p className="break-words text-[15px] leading-snug text-ink-soft">{row.detail}</p>}
-                <p className="mt-1 break-words text-base font-bold text-ink">{valueLabel(row.value)}</p>
+                <p className="mt-1 break-words text-[16px] font-bold tabular-nums text-ink">{valueLabel(row.value)}</p>
               </div>
               <div aria-hidden="true" className="pl-[2px]">
                 <div className="h-9 rounded-r-[2px] bg-brand" style={{ width: `${barWidth(row.value, scale.maximum)}%` }} />

@@ -44,6 +44,5 @@ export function chartScale(values: number[], integer: boolean) {
   return { maximum: interval * 2, ticks: [0, interval, interval * 2] };
 }
 export function dashboardFilters(params: Record<string, string | string[] | undefined>) {
-  return { kind: params.tipo === "money" || params.tipo === "supplies" ? params.tipo : "all",
-    currency: typeof params.moneda === "string" && /^[A-Za-z]{3}$/.test(params.moneda) ? params.moneda.toUpperCase() : "USD" };
+  return { currency: typeof params.moneda === "string" && /^[A-Za-z]{3}$/.test(params.moneda) ? params.moneda.toUpperCase() : "USD" };
 }

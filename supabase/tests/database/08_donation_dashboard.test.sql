@@ -1,5 +1,5 @@
 begin;
-select plan(9);
+select plan(11);
 -- Sólo dentro de esta transacción de prueba, revertida al terminar.
 delete from public.donations;
 delete from public.donors;
@@ -23,6 +23,13 @@ select is(public.get_donation_dashboard('money','USD')->'donors'->0->>'label', '
 select is(public.get_donation_dashboard('supplies')->'donors'->0->>'value', '2', 'ranking insumos cuenta registros');
 select is(public.get_donation_dashboard()->'items'->0->>'value', '2', 'agrupa descripción sin mayúsculas y espacios, sin sumar sacos y kilos');
 select is(public.get_donation_dashboard()->'categories'->0->>'label', 'Alimentos', 'categorías usan nombre legible del catálogo');
+insert into public.donors(id,full_name) values ('d8080000-0000-4000-8000-000000000003', 'Un aporte grande');
+insert into public.donations(donor_id,kind,amount,currency,donated_at)
+values ('d8080000-0000-4000-8000-000000000003','money',100000,'USD',current_date);
+insert into public.donations(donor_id,kind,amount,currency,donated_at)
+select 'd8080000-0000-4000-8000-000000000001'::uuid,'money',1,'USD',current_date from generate_series(1,50);
+select is(public.get_donation_dashboard('money','USD')->'donors'->0->>'label', 'Un aporte grande', '100 mil dólares una vez supera cincuenta aportes de un dólar');
+select is((public.get_donation_dashboard('money','USD')->'donors'->0->>'value')::numeric, 100000::numeric, 'barra representa el monto total aportado');
 set local role anon;
 select throws_ok($$select public.get_donation_dashboard()$$, '42501', null, 'resumen no es público');
 select * from finish();

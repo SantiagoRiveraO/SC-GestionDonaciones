@@ -21,8 +21,10 @@ describe("resumen", () => {
   it("evita barras infinitas en cero y limita su ancho", () => {
     expect(barWidth(0, 0)).toBe(0); expect(barWidth(5, 10)).toBe(50); expect(barWidth(30, 10)).toBe(100);
   });
-  it("normaliza filtros y rechaza tipos o monedas desconocidos", () => {
-    expect(dashboardFilters({ tipo: "money", moneda: "ves" })).toEqual({ kind: "money", currency: "VES" });
-    expect(dashboardFilters({ tipo: ["money"], moneda: "INVALID" })).toEqual({ kind: "all", currency: "USD" });
+  it("solo permite elegir moneda; enlaces antiguos no cambian el top a frecuencia", () => {
+    expect(dashboardFilters({})).toEqual({ currency: "USD" });
+    expect(dashboardFilters({ tipo: "all", moneda: "ves" })).toEqual({ currency: "VES" });
+    expect(dashboardFilters({ tipo: "supplies", moneda: "INVALID" })).toEqual({ currency: "USD" });
+    expect(dashboardFilters({ moneda: ["USD", "VES"] })).toEqual({ currency: "USD" });
   });
 });
