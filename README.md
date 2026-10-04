@@ -3,6 +3,7 @@
 Sistema web interno para registrar y consultar donaciones de la Fundación Milagro de Amor para Venezuela. El personal entra con email y contraseña, lista donaciones (25 por página), filtra, crea, edita y elimina. No hay migración de donaciones históricas: el sistema arranca vacío.
 
 **Stack:** Next.js 16 (TypeScript) + Supabase (Auth, Postgres, RLS) · Deploy: Vercel  
+**Producción:** https://sc-gestion-donaciones.vercel.app  
 **Repo:** https://github.com/SantiagoRiveraO/SC-GestionDonaciones  
 **Linear:** https://linear.app/mundosonrisa-sc/project/sistema-web-de-gestion-de-donaciones-funmiaven-6d41d850cd6e  
 **Entrega:** 1 de septiembre de 2026
