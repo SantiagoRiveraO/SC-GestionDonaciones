@@ -12,7 +12,7 @@ Fuentes:
 
 ## 1. Leer sin esfuerzo
 - Letra base de **18 px** con interlineado de 1,6. Los títulos de página van a 30–32 px.
-- Tipografía **Atkinson Hyperlegible**, diseñada por el Braille Institute para personas con baja visión. Nada de cursivas ni texto justificado.
+- Tipografía **Lexend**, diseñada para facilitar la lectura: letras amplias y números muy claros. Se descartó Atkinson Hyperlegible porque tacha el cero (Ø) y confundía los montos. Nada de cursivas ni texto justificado.
 - Contraste de **7:1** para el texto normal: casi negro sobre blanco. El gris claro solo se usa en textos secundarios y nunca baja de 4,5:1.
 - La fecha se escribe completa donde se lee con calma, por ejemplo "4 de octubre de 2026" en el detalle. En listas se usa `dd/mm/aaaa`.
 - Los montos se ven grandes y con su moneda: `USD 1.250,00`.
@@ -53,14 +53,22 @@ Fuentes:
 - Los mensajes de éxito son grandes, verdes y con ícono de check. **No desaparecen solos**, porque no ponemos límites de tiempo.
 
 ## 5. Agradable a la vista
-- **Colores de la fundación** en variables CSS, en un solo lugar (`src/app/globals.css`):
-  - `--brand` es el color principal (botones y enlaces activos);
-  - `--brand-strong` es el hover;
-  - `--brand-soft` es el fondo suave de las tarjetas destacadas;
-  - `--brand-contrast` es el texto sobre `--brand`.
-  - Mientras llegan los colores oficiales se usa un rosa oscuro cálido, `#9F1239`, que da 7,6:1 sobre blanco.
-- **Logo**: `public/logo.svg`. Mientras llega el oficial hay un marcador de posición (un corazón con "FUNMIAVEN"). Para cambiarlo basta con reemplazar el archivo.
-- Fondo general blanco hueso. Tarjetas blancas con bordes redondeados (12 px) y sombra suave.
+- **Colores oficiales**, tomados del logo y definidos en variables CSS en un solo lugar (`src/app/globals.css`):
+
+  | Variable | Valor | Uso |
+  |---|---|---|
+  | `--brand` | `#35327F` (azul marino del nombre) | Botones principales y menú activo. Da 11:1 con texto blanco. |
+  | `--brand-strong` | `#27245F` | Hover |
+  | `--brand-soft` | `#EEEDF8` | Fondo de tarjetas destacadas |
+  | `--accent` | `#E2234D` (rojo del corazón) | Detalles e íconos. No se usa para texto chico. |
+  | `--accent-soft` | `#FDECEF` | Fondo suave de detalles |
+
+  El azul `#476AA7` y el verde `#3DA242` del logo quedan como colores de apoyo.
+- **Logos** en `public/brand/`, con fondo transparente:
+  - `logo-marca.png`: el corazón solo. Va en el encabezado y es el ícono del navegador (`src/app/icon.png`).
+  - `logo-funmiaven.png`: el corazón con el nombre. Va en el login.
+  - `logo-milagro-de-amor.jpg`: el logo circular "Milagro de Amor por Venezuela", guardado para documentos impresos.
+- Fondo general gris muy claro con un toque de azul (`--page`, `#F7F7FB`). Tarjetas blancas con bordes redondeados (12 px) y sombra suave.
 - Íconos de `lucide-react`, siempre acompañados de texto y nunca solos.
 - Los estados vacíos llevan ilustración o ícono, una frase amable y el botón para empezar: "Todavía no hay donaciones. ¡Registra la primera!"
 

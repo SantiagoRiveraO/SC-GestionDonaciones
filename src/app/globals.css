@@ -1,22 +1,44 @@
 @import "tailwindcss";
 
 /* Light only: the components have no dark styles, so a dark page behind
-   them left dark text on a dark background. */
+   them left dark text on a dark background. The app is light-only. */
+/* Colores oficiales de la fundación, tomados del logo (public/brand/).
+   --brand: azul marino del nombre FUNMIAVEN (11:1 con texto blanco).
+   --accent: rojo del corazón, solo para detalles, no para texto chico. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand: #35327F;
+  --brand-strong: #27245F;
+  --brand-soft: #EEEDF8;
+  --brand-contrast: #FFFFFF;
+  --accent: #E2234D;
+  --accent-soft: #FDECEF;
+  --surface: #FFFFFF;
+  --page: #F7F7FB;
+  --ink: #18181B;
+  --ink-soft: #52525B;
   color-scheme: light;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-contrast: var(--brand-contrast);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-surface: var(--surface);
+  --color-page: var(--page);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --font-sans: var(--font-app);
+}
+
+html {
+  font-size: 112.5%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  line-height: 1.6;
 }

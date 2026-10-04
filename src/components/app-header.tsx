@@ -1,37 +1,47 @@
+import Image from "next/image";
 import Link from "next/link";
+import { AppNav } from "@/components/app-nav";
 import { LogoutButton } from "@/components/logout-button";
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2";
+  "rounded-md focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
 
-export function AppHeader() {
+export function AppHeader({ displayName }: { displayName: string }) {
   return (
-    <header className="border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6">
-        <div className="flex min-w-0 flex-wrap items-center gap-3 sm:gap-6">
+    <>
+      <header className="sticky top-0 z-30 bg-surface shadow-[0_2px_8px_rgba(24,24,27,0.08)]">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-2 md:px-6">
           <Link
-            href="/donations"
-            className={`rounded-sm text-sm font-semibold tracking-wide text-zinc-900 ${focusRing}`}
+            href="/"
+            className={`flex min-h-[48px] items-center gap-3 ${focusRing}`}
           >
-            FUNMIAVEN
+            <Image
+              src="/brand/logo-marca.png"
+              alt=""
+              width={48}
+              height={48}
+              priority
+              unoptimized
+            />
+            <span className="flex flex-col leading-tight">
+              <span className="font-bold text-ink">FUNMIAVEN</span>
+              <span className="hidden text-[15px] text-ink-soft md:block">
+                Gestión de donaciones
+              </span>
+            </span>
           </Link>
-          <nav aria-label="Principal" className="flex items-center gap-3 text-sm">
-            <Link
-              href="/donations"
-              className={`rounded-sm text-zinc-600 hover:text-zinc-900 ${focusRing}`}
-            >
-              Donaciones
-            </Link>
-            <Link
-              href="/donations/new"
-              className={`rounded-sm text-zinc-600 hover:text-zinc-900 ${focusRing}`}
-            >
-              Nueva
-            </Link>
-          </nav>
+
+          <AppNav variant="desktop" />
+
+          <div className="flex items-center gap-3">
+            <p className="hidden font-medium text-ink md:block">
+              Hola, {displayName}
+            </p>
+            <LogoutButton />
+          </div>
         </div>
-        <LogoutButton />
-      </div>
-    </header>
+      </header>
+      <AppNav variant="mobile" />
+    </>
   );
 }
