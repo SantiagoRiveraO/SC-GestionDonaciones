@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { barWidth, dashboardFilters, parseDashboard } from "./presentation";
+import { barWidth, chartScale, dashboardFilters, parseDashboard } from "./presentation";
 describe("resumen", () => {
+  it("usa un eje común desde cero sin fracciones para contar donaciones", () => {
+    expect(chartScale([4, 3], true)).toEqual({ maximum: 4, ticks: [0, 2, 4] });
+    expect(chartScale([5, 1], true)).toEqual({ maximum: 6, ticks: [0, 3, 6] });
+    expect(chartScale([1], true)).toEqual({ maximum: 2, ticks: [0, 1, 2] });
+  });
+  it("permite una escala de importes pequeños y maneja un gráfico vacío", () => {
+    expect(chartScale([0.03, 0.01], false)).toEqual({ maximum: 0.04, ticks: [0, 0.02, 0.04] });
+    expect(chartScale([], true)).toEqual({ maximum: 2, ticks: [0, 1, 2] });
+  });
   it("maneja un sistema vacío sin inventar estadísticas", () => {
     expect(parseDashboard({})).toEqual({ total: 0, moneyCount: 0, suppliesCount: 0, unnamedCount: 0, moneyTotals: {}, donors: [], items: [], categories: [] });
   });

@@ -86,4 +86,4 @@ Fuentes:
 - Donantes usa los mismos campos, mensajes de error, tarjetas y botones del resto del sistema. Solo exige un nombre.
 - Las fichas permiten registrar otro aporte con el nombre rellenado y conservar el historial al editar los datos.
 - Resumen tiene una opción propia en el menú y un enlace secundario en Inicio. No desplaza la acción principal de registrar donaciones.
-- Las barras tienen el nombre y valor escritos al lado; el color no es la única fuente de información. Se separan las monedas y se cuentan registros de insumos, sin sumar unidades incompatibles.
+- Los gráficos de barras tienen un eje numérico común desde cero, líneas de referencia y nombres y valores escritos al lado. No usan fondos que se rellenan como indicadores de progreso. El color no es la única fuente de información. Se separan las monedas y se cuentan registros de insumos, sin sumar unidades incompatibles.

@@ -31,6 +31,18 @@ export function parseDashboard(value: Json): Dashboard {
 export function barWidth(value: number, maximum: number): number {
   return maximum > 0 ? Math.max(0, Math.min(100, value / maximum * 100)) : 0;
 }
+
+// Dos intervalos legibles y una escala que siempre empieza en cero.
+export function chartScale(values: number[], integer: boolean) {
+  const maximum = Math.max(0, ...values.filter(Number.isFinite));
+  if (maximum <= 0) return { maximum: 2, ticks: [0, 1, 2] };
+  const target = maximum / 2;
+  const magnitude = 10 ** Math.floor(Math.log10(target));
+  const step = [1, 2, 2.5, 5, 10].map((factor) => factor * magnitude)
+    .find((candidate) => candidate >= target) ?? magnitude * 10;
+  const interval = integer ? Math.max(1, Math.ceil(step)) : step;
+  return { maximum: interval * 2, ticks: [0, interval, interval * 2] };
+}
 export function dashboardFilters(params: Record<string, string | string[] | undefined>) {
   return { kind: params.tipo === "money" || params.tipo === "supplies" ? params.tipo : "all",
     currency: typeof params.moneda === "string" && /^[A-Za-z]{3}$/.test(params.moneda) ? params.moneda.toUpperCase() : "USD" };
