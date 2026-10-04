@@ -11,7 +11,7 @@ export default async function ProtectedLayout({
   return (
     <>
       <AppHeader displayName={displayName} />
-      <div className="flex flex-1 flex-col pb-[calc(64px+1rem+env(safe-area-inset-bottom))] lg:pb-0">
+      <div className="flex flex-1 flex-col pb-[calc(64px+1rem+env(safe-area-inset-bottom))] xl:pb-0">
         {children}
       </div>
     </>

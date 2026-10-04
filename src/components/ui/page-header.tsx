@@ -20,7 +20,7 @@ export function PageHeader({
 }) {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-      <div className="space-y-2">
+      <div className="min-w-0 space-y-2">
         {backHref && backLabel ? (
           <Link
             href={backHref}
@@ -30,7 +30,7 @@ export function PageHeader({
             Volver a {backLabel}
           </Link>
         ) : null}
-        <h1 className="text-[30px] leading-tight font-bold text-ink">{title}</h1>
+        <h1 className="break-words text-[30px] leading-tight font-bold text-ink">{title}</h1>
         {description ? <p className="text-ink-soft">{description}</p> : null}
       </div>
       {actions ? (

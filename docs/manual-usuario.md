@@ -71,6 +71,25 @@ El detalle indica quién registró y editó la donación y cuándo, en hora de C
 
 **Eliminar** abre una ventana de confirmación con los datos de la donación. **No, volver** cancela. **Sí, eliminar** borra el registro; no se puede recuperar desde la app.
 
+## Registrar y consultar donantes
+
+Pulsa **Donantes** y luego **Registrar donante**. Solo el nombre de la persona o de la organización es obligatorio. Puedes completar teléfono, correo y notas ahora o después.
+
+Busca por nombre, teléfono o correo y pulsa **Buscar**. **Ordenar por** permite consultar quienes han hecho más donaciones, quienes han aportado más dinero en una moneda, los más recientes o la lista por nombre. No se convierten ni se mezclan monedas.
+
+Abre una tarjeta para ver los datos de contacto, los aportes y el historial. **Editar datos** permite corregir el nombre sin perder sus donaciones. **Registrar donación de este donante** abre el formulario con su nombre ya escrito. También puedes abrir su ficha desde el detalle de una donación.
+
+## Ver el resumen
+
+Pulsa **Resumen** en el menú. También puedes entrar desde **Inicio**, mediante **Ver resumen y principales aportes**. Es una pantalla de consulta secundaria; abarca todo lo registrado.
+
+- **Donantes con más aportes:** muestra los cinco primeros. Elige todas las donaciones, solo dinero o solo insumos y pulsa **Ver comparación**. Para dinero, elige también la moneda. Toca el nombre para abrir su ficha.
+- **Dinero recibido:** muestra un total por moneda, incluyendo las donaciones sin donante identificado.
+- **Insumos más donados:** cuenta cuántas veces aparece cada descripción dentro de una categoría. Escribe las descripciones de forma consistente para agruparlas mejor.
+- **Categorías más donadas:** cuenta las donaciones de insumos por categoría.
+
+Las barras muestran cuántas donaciones se registraron o cuánto dinero se recibió en la moneda elegida. No suman sacos con kilos ni ropa con alimentos. Si todavía no hay registros, se muestra un mensaje para comenzar.
+
 ## Si algo falla
 
 - **Correo o contraseña incorrectos:** revisa ambos datos.

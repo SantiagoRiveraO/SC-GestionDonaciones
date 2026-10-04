@@ -288,7 +288,7 @@ export async function createDonation(
     }
 
     revalidatePath("/donations");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     redirect(`/donations/${data.id}?estado=creada`);
   } catch (error) {
     if (isNextControlFlowError(error)) {
@@ -341,7 +341,7 @@ export async function updateDonation(
     }
 
     revalidatePath("/donations");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     redirect(`/donations/${data.id}?estado=actualizada`);
   } catch (error) {
     if (isNextControlFlowError(error)) {
@@ -384,7 +384,7 @@ export async function deleteDonation(
     }
 
     revalidatePath("/donations");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     redirect("/donations?estado=eliminada");
   } catch (error) {
     if (isNextControlFlowError(error)) {

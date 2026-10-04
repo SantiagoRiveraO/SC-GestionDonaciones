@@ -73,11 +73,17 @@ Fuentes:
   - `logo-marca.png`: el corazón solo. Va en el encabezado y es el ícono del navegador (`src/app/icon.png`).
   - `logo-funmiaven.png`: el corazón con el nombre. Va en el login.
   - `logo-milagro-de-amor.jpg`: el logo circular "Milagro de Amor por Venezuela", guardado para documentos impresos.
-- Fondo general gris muy claro con un toque de azul (`--page`, `#F7F7FB`). Tarjetas blancas con bordes redondeados (12 px) y sombra suave.
+- Fondo general gris claro (`--page`, `#F0F2F6`). Tarjetas blancas con bordes redondeados (12 px), borde gris visible y sombra suave. Los campos y botones secundarios tienen bordes más oscuros para distinguirlos fácilmente.
 - Íconos de `lucide-react`, siempre acompañados de texto y nunca solos.
 - Los estados vacíos llevan ilustración o ícono, una frase amable y el botón para empezar: "Todavía no hay donaciones. ¡Registra la primera!"
 
 ## 6. Teléfono
 - Todo debe funcionar en 360 px de ancho, sin scroll horizontal.
-- En el teléfono, el menú del encabezado se vuelve una barra inferior fija con las tres opciones grandes.
+- En el teléfono, el menú del encabezado se vuelve una barra inferior fija con cinco opciones: Inicio, Donaciones, Donantes, Resumen y Registrar.
 - Las listas se ven como tarjetas.
+
+## 7. Donantes y resumen
+- Donantes usa los mismos campos, mensajes de error, tarjetas y botones del resto del sistema. Solo exige un nombre.
+- Las fichas permiten registrar otro aporte con el nombre rellenado y conservar el historial al editar los datos.
+- Resumen tiene una opción propia en el menú y un enlace secundario en Inicio. No desplaza la acción principal de registrar donaciones.
+- Las barras tienen el nombre y valor escritos al lado; el color no es la única fuente de información. Se separan las monedas y se cuentan registros de insumos, sin sumar unidades incompatibles.

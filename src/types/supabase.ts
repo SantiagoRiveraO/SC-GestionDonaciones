@@ -57,6 +57,12 @@ isOneToOne: false
       foreignKeyName: "donations_donor_id_fkey"
       columns: ["donor_id"]
 isOneToOne: false
+      referencedRelation: "donor_overview"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "donations_donor_id_fkey"
+      columns: ["donor_id"]
+isOneToOne: false
       referencedRelation: "donors"
       referencedColumns: ["id"]
     }
@@ -118,9 +124,22 @@ isOneToOne: false
       foreignKeyName: "donations_donor_id_fkey"
       columns: ["donor_id"]
 isOneToOne: false
+      referencedRelation: "donor_overview"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "donations_donor_id_fkey"
+      columns: ["donor_id"]
+isOneToOne: false
       referencedRelation: "donors"
       referencedColumns: ["id"]
     }
+                  ]
+                },"donor_overview": {
+                  Row: {
+                    "created_at": string | null,"donation_count": number | null,"email": string | null,"full_name": string | null,"id": string | null,"last_donation_date": string | null,"money_count": number | null,"money_totals": Json | null,"notes": string | null,"phone": string | null,"supplies_count": number | null,"updated_at": string | null
+                  }
+                  Relationships: [
+
                   ]
                 }
           }
@@ -135,6 +154,9 @@ isOneToOne: false
                            },
 "ensure_donor":
 { Args: { "p_full_name": string }; Returns: string
+                           },
+"get_donation_dashboard":
+{ Args: { "p_currency"?: string,"p_kind"?: string }; Returns: Json
                            },
 "search_donations":
 { Args: { "p_category"?: string,"p_currency"?: string,"p_from"?: string,"p_kind"?: string,"p_method"?: string,"p_query"?: string,"p_to"?: string }; Returns: {
@@ -163,6 +185,27 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "donation_list"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
+"search_donors":
+{ Args: { "p_currency"?: string,"p_query"?: string,"p_sort"?: string }; Returns: {
+              "created_at": string | null,
+"donation_count": number | null,
+"email": string | null,
+"full_name": string | null,
+"id": string | null,
+"last_donation_date": string | null,
+"money_count": number | null,
+"money_totals": Json | null,
+"notes": string | null,
+"phone": string | null,
+"supplies_count": number | null,
+"updated_at": string | null
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "donor_overview"
         isOneToOne: false
         isSetofReturn: true
       } }

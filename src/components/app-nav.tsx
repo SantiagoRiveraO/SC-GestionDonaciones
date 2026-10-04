@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CirclePlus, House, List } from "lucide-react";
+import { ChartNoAxesCombined, CirclePlus, House, List, Users } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
 
 const focusRing =
@@ -11,6 +11,8 @@ const focusRing =
 const items = [
   { href: "/", label: "Inicio", icon: House, primary: false },
   { href: "/donations", label: "Donaciones", icon: List, primary: false },
+  { href: "/donors", label: "Donantes", icon: Users, primary: false },
+  { href: "/summary", label: "Resumen", icon: ChartNoAxesCombined, primary: false },
   {
     href: "/donations/new",
     label: "Registrar donación",
@@ -27,6 +29,8 @@ function isNavActive(href: string, pathname: string) {
   if (href === "/donations/new") {
     return pathname === "/donations/new" || pathname.startsWith("/donations/new/");
   }
+  if (href === "/donors") return pathname === "/donors" || pathname.startsWith("/donors/");
+  if (href === "/summary") return pathname === "/summary";
 
   return (
     pathname === "/donations" ||
@@ -41,9 +45,9 @@ export function AppNav({ variant }: { variant: "desktop" | "mobile" }) {
     return (
       <nav
         aria-label="Principal"
-        className="fixed right-0 bottom-0 left-0 z-40 border-t border-zinc-200 bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_8px_rgba(24,24,27,0.08)] lg:hidden"
+        className="fixed right-0 bottom-0 left-0 z-40 border-t border-zinc-300 bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_8px_rgba(24,24,27,0.08)] xl:hidden"
       >
-        <ul className="mx-auto grid max-w-6xl grid-cols-3">
+        <ul className="mx-auto grid max-w-6xl grid-cols-[0.8fr_1.25fr_1fr_1fr_1fr] sm:grid-cols-5">
           {items.map((item) => {
             const Icon = item.icon;
             const active = isNavActive(item.href, pathname);
@@ -54,14 +58,14 @@ export function AppNav({ variant }: { variant: "desktop" | "mobile" }) {
                   href={item.href}
                   aria-label={item.primary ? "Registrar donación" : undefined}
                   aria-current={active ? "page" : undefined}
-                  className={`flex min-h-[64px] flex-col items-center justify-center gap-1 overflow-visible border-t-[3px] px-1 text-center leading-none ${focusRing} ${
+                  className={`flex min-h-[64px] flex-col items-center justify-center gap-1 overflow-visible border-t-[3px] px-0.5 text-center leading-none ${focusRing} ${
                     active
                       ? "border-brand font-bold text-brand"
                       : "border-transparent text-ink"
                   }`}
                 >
                   <Icon aria-hidden className="size-6" />
-                  <span className="text-[15px] leading-none whitespace-nowrap">
+                  <span className="text-[14px] leading-none tracking-tight whitespace-nowrap sm:text-[15px]">
                     {item.primary ? "Registrar" : item.label}
                   </span>
                 </Link>
@@ -76,7 +80,7 @@ export function AppNav({ variant }: { variant: "desktop" | "mobile" }) {
   return (
     <nav
       aria-label="Principal"
-      className="hidden flex-1 items-center justify-center gap-2 lg:flex"
+      className="hidden flex-1 items-center justify-center gap-1 xl:flex"
     >
       {items.map((item) => {
         const Icon = item.icon;
@@ -106,7 +110,7 @@ export function AppNav({ variant }: { variant: "desktop" | "mobile" }) {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`inline-flex min-h-[48px] items-center gap-2 rounded-md border-b-[3px] px-3 whitespace-nowrap ${focusRing} ${
+            className={`inline-flex min-h-[48px] items-center gap-2 rounded-md border-b-[3px] px-2 whitespace-nowrap ${focusRing} ${
               active
                 ? "border-brand font-bold text-brand"
                 : "border-transparent font-medium text-ink hover:text-brand"

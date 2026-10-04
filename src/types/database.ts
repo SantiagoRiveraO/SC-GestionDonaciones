@@ -2,6 +2,7 @@ import type { Database } from "./supabase";
 
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Donor = Database["public"]["Tables"]["donors"]["Row"];
+export type DonorOverview = Database["public"]["Views"]["donor_overview"]["Row"];
 export type Donation = Database["public"]["Tables"]["donations"]["Row"];
 export type DonationListRow =
   Database["public"]["Views"]["donation_list"]["Row"];

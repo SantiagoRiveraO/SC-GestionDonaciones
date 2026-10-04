@@ -6,7 +6,7 @@ import { Field } from "@/components/ui/field";
 import { saveCategory } from "@/lib/donations/category-actions";
 import type { SupplyCategoryOption } from "@/lib/donations/categories";
 
-const fieldClassName = "min-h-[48px] w-full rounded-lg border border-zinc-300 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
+const fieldClassName = "min-h-[48px] w-full rounded-lg border border-zinc-500 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
 
 export function CategoryEditor({ category }: { category?: SupplyCategoryOption }) {
   const [state, action, pending] = useActionState(saveCategory, null);

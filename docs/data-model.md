@@ -216,6 +216,16 @@ const { data: list } = await supabase
   .order("donated_at", { ascending: false });
 ```
 
+## Donantes y resumen de aportes
+
+Se reutiliza `public.donors` como entidad de contacto. El personal autenticado puede registrar y editar nombre, teléfono, correo y notas. El índice de nombre impide duplicados por espacios o mayúsculas. No se elimina un donante desde la interfaz.
+
+`donor_overview` es una vista `security_invoker`: cuenta sus donaciones de dinero e insumos, conserva los totales por moneda y la fecha más reciente. Se calcula desde las donaciones actuales; editar o eliminar una donación actualiza los resultados automáticamente. `search_donors` permite búsqueda literal y orden por frecuencia, importe en una moneda, fecha o nombre. El historial mantiene la relación por `donor_id` al corregir un nombre.
+
+`get_donation_dashboard` devuelve estadísticas generales y rankings de cinco donantes, insumos y categorías. Incluye donaciones anónimas en los totales, pero solo donantes identificados en el ranking. Agrupa insumos por descripción sin mayúsculas ni espacios externos, y por categoría; cuenta registros sin mezclar sus cantidades o unidades. Tanto las vistas como las funciones respetan RLS y solo el personal autenticado tiene acceso a estas consultas.
+
+No se importan registros históricos ni se aplica el seed en producción.
+
 ## Cómo correrlo en local
 
 1. `npm run db:start` — levanta Supabase local.

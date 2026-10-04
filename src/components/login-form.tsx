@@ -9,7 +9,7 @@ import { Field } from "@/components/ui/field";
 import { createClient } from "@/lib/supabase/client";
 
 const fieldClassName =
-  "w-full min-h-[48px] rounded-lg border border-zinc-300 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
+  "w-full min-h-[48px] rounded-lg border border-zinc-500 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
 
 function safeNextPath(next: string | null) {
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
@@ -56,7 +56,7 @@ function PasswordControl({
   "aria-invalid"?: boolean;
 }) {
   return (
-    <div className="flex min-h-[48px] overflow-hidden rounded-lg border border-zinc-300 bg-surface focus-within:ring-[3px] focus-within:ring-brand">
+    <div className="flex min-h-[48px] overflow-hidden rounded-lg border border-zinc-500 bg-surface focus-within:ring-[3px] focus-within:ring-brand">
       <input
         id={id}
         type={shown ? "text" : "password"}

@@ -27,10 +27,10 @@ import type { DonationListRow } from "@/types/database";
 import type { DonationFieldErrors } from "@/lib/donations/validation";
 
 const fieldClassName =
-  "w-full min-h-[48px] rounded-lg border border-zinc-300 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
+  "w-full min-h-[48px] rounded-lg border border-zinc-500 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
 
 const choiceClassName =
-  "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-zinc-300 px-3 font-bold text-ink has-[:checked]:border-brand has-[:checked]:bg-brand-soft has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-brand";
+  "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-zinc-500 px-3 font-bold text-ink has-[:checked]:border-brand has-[:checked]:bg-brand-soft has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-brand";
 
 const DEFAULT_CURRENCIES = ["USD", "VES", "EUR"] as const;
 const PRESET_METHODS = [
@@ -61,6 +61,7 @@ type DonationFormProps = {
   initial?: DonationListRow;
   donorNames: string[];
   categories: SupplyCategoryOption[];
+  donorName?: string;
 };
 
 function AmountControl({
@@ -77,7 +78,7 @@ function AmountControl({
   "aria-invalid"?: boolean;
 }) {
   return (
-    <div className="flex min-h-[48px] overflow-hidden rounded-lg border border-zinc-300 bg-surface focus-within:ring-[3px] focus-within:ring-brand">
+    <div className="flex min-h-[48px] overflow-hidden rounded-lg border border-zinc-500 bg-surface focus-within:ring-[3px] focus-within:ring-brand">
       <span className="flex items-center bg-brand-soft px-3 font-bold text-brand">
         {currency}
       </span>
@@ -492,6 +493,7 @@ export function DonationForm({
   initial,
   donorNames,
   categories,
+  donorName,
 }: DonationFormProps) {
   const router = useRouter();
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -517,7 +519,7 @@ export function DonationForm({
     method: initial?.method ?? "",
     concept: initial?.concept ?? "",
     notes: initial?.notes ?? "",
-    donor_name: initial?.donor_name ?? "",
+    donor_name: initial?.donor_name ?? donorName ?? "",
   };
   const fieldErrors = state?.fieldErrors ?? {};
   const errorEntries = (

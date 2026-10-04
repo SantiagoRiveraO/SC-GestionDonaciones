@@ -14,7 +14,7 @@ import {
 } from "@/lib/donations/filters";
 
 const fieldClassName =
-  "w-full min-h-[48px] rounded-lg border border-zinc-300 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
+  "w-full min-h-[48px] rounded-lg border border-zinc-500 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
 
 type DonationFiltersProps = {
   filters: DonationSearchFilters;

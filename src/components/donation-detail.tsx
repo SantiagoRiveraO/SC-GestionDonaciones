@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import {
   Banknote,
   Gift,
@@ -95,7 +96,7 @@ export function DonationDetail({ donation }: { donation: DonationListRow }) {
           ) : null}
           <DetailRow label="Fecha">{longDate}</DetailRow>
           <DetailRow label="Donante">
-            {donation.donor_name?.trim() || "—"}
+            {donation.donor_id ? <Link href={`/donors/${donation.donor_id}`} className="inline-flex min-h-[48px] items-center break-words font-medium text-brand underline focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand">{donation.donor_name?.trim() || "Ver donante"}</Link> : "—"}
           </DetailRow>
           {!supplies ? (
             <DetailRow label="Método de pago">

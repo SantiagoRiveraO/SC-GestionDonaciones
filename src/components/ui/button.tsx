@@ -36,7 +36,7 @@ function buttonClassName({
     variant === "primary" &&
       "bg-brand text-brand-contrast hover:bg-brand-strong",
     variant === "secondary" &&
-      "border-2 border-zinc-300 bg-surface text-ink hover:bg-page",
+      "border-2 border-zinc-500 bg-surface text-ink hover:bg-page",
     variant === "danger" && "bg-red-700 text-white hover:bg-red-800",
     variant === "ghost" && "bg-transparent text-ink hover:bg-brand-soft",
     "disabled:cursor-not-allowed disabled:opacity-60",

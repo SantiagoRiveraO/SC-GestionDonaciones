@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, CirclePlus, HandHeart, List } from "lucide-react";
+import { CalendarDays, ChartNoAxesCombined, CirclePlus, HandHeart, List, Users } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getMonthSummary, listRecentDonations } from "@/lib/donations/queries";
@@ -38,7 +38,7 @@ export default async function HomePage() {
         <p className="text-ink-soft">Hoy es {formatTodayLong()}</p>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <ButtonLink
           href="/donations/new"
           size="lg"
@@ -56,6 +56,7 @@ export default async function HomePage() {
         >
           Ver todas las donaciones
         </ButtonLink>
+        <ButtonLink href="/donors" variant="secondary" size="lg" icon={<Users aria-hidden className="size-7" />} className="w-full min-h-[96px] text-lg">Ver donantes</ButtonLink>
       </div>
 
       <Card className="space-y-3 p-5">
@@ -82,6 +83,8 @@ export default async function HomePage() {
           </>
         )}
       </Card>
+
+      <Link href="/summary" className={`inline-flex min-h-[48px] items-center gap-3 self-start rounded-md font-bold text-brand underline underline-offset-4 ${focusRing}`}><ChartNoAxesCombined aria-hidden className="size-6" />Ver resumen y principales aportes →</Link>
 
       {recent.length === 0 ? (
         <Card className="flex flex-col items-center gap-4 px-5 py-10 text-center">
