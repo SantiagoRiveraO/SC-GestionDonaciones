@@ -1,63 +1,58 @@
 # SC · Gestión de Donaciones (FUNMIAVEN)
 
-Sistema web interno para registrar y consultar donaciones de la Fundación Milagro de Amor para Venezuela.
+Sistema web interno para registrar y consultar donaciones de la Fundación Milagro de Amor para Venezuela. El personal entra con email y contraseña, lista donaciones (25 por página), filtra, crea, edita y elimina. No hay migración de donaciones históricas: el sistema arranca vacío.
 
-**Stack:** Next.js (TypeScript) + Supabase (Auth, Postgres, RLS) · Deploy: Vercel  
+**Stack:** Next.js 16 (TypeScript) + Supabase (Auth, Postgres, RLS) · Deploy: Vercel  
 **Repo:** https://github.com/SantiagoRiveraO/SC-GestionDonaciones  
 **Linear:** https://linear.app/mundosonrisa-sc/project/sistema-web-de-gestion-de-donaciones-funmiaven-6d41d850cd6e  
 **Entrega:** 1 de septiembre de 2026
 
 ## Importante
-- **No hay migración de donaciones históricas.** La organización no llevaba registro. El sistema arranca vacío.
-- Seeds = datos falsos solo para pruebas.
-- Secretos nunca van al repo (usar `.env.local`).
 
-## Roles
-| Persona | Área | Carpeta / foco | Epic Linear |
-|---------|------|----------------|-------------|
-| Emilio | Backend / Supabase | `supabase/`, contrato de datos | [MUN-21](https://linear.app/mundosonrisa-sc/issue/MUN-21/back-epic-supabase-auth-rls-y-datos) |
-| Carlos | Frontend / Next.js | `src/` | [MUN-22](https://linear.app/mundosonrisa-sc/issue/MUN-22/front-epic-nextjs-ui-e-integracion) |
-| Santiago | Seguimiento | Linear | Lead del proyecto |
+- No hay migración de donaciones históricas. La organización no llevaba registro.
+- El seed (`supabase/seed.sql`) es solo local, con datos falsos. Nunca en producción.
+- Los secretos no van al repo. Usa `.env.local`. La anon key es pública; la protección es RLS. El service role no se comparte.
 
-## Arranque local
+## Arranque rápido
+
+Requisitos: Node 20 o más, Docker Desktop y git.
+
 ```bash
 git clone https://github.com/SantiagoRiveraO/SC-GestionDonaciones.git
 cd SC-GestionDonaciones
-npm install
-cp .env.example .env.local
-# Completar URL y anon key de Supabase (Emilio)
+npm ci
+npm run db:start
+npm run db:reset
+```
+
+Copia `.env.example` a `.env.local`. De `npx supabase status` toma la URL y la anon key:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+No copies el service role.
+
+```bash
 npm run dev
 ```
 
 Abre http://localhost:3000
 
-## Estructura
-```
-src/
-  app/                 # Rutas: /, /login, /donations, /donations/new
-  components/          # UI reutilizable (Carlos — MUN-7+)
-  lib/supabase/        # Clientes browser/server + middleware + env
-  types/database.ts    # Contrato de tipos compartido
-supabase/
-  migrations/          # SQL de esquema (Emilio)
-  seed.sql             # Seeds de QA
-  README.md
-docs/
-  data-contract.md
-  CONTRIBUTING.md
+## Pruebas
+
+```bash
+npm test          # Vitest
+npm run db:test   # pgTAP
+npm run lint
+npm run build
 ```
 
-Rutas base listas (stubs hasta MUN-7/MUN-12). Sin `NEXT_PUBLIC_SUPABASE_*` en `.env.local` los clientes fallan con un mensaje explícito.
+## Documentación
 
-## Por dónde empezar
-1. Abrir su épica en Linear y expandir subtareas.
-2. Empezar por el **MUN más bajo desbloqueado** de su área:
-   - **Emilio:** MUN-5 → MUN-6
-   - **Carlos:** MUN-8 → MUN-7
-3. Trabajar en una rama `feature/mun-X-descripcion`, push y PR a `main`.
-4. Comentar en la issue: `hecho / bloqueo / siguiente paso`.
-
-## Docs útiles
+- [Manual de uso](docs/manual-usuario.md) — personal que registra donaciones
+- [Operación](docs/operacion.md) — usuarios, respaldos, secretos
+- [Documentación técnica](docs/tecnica.md) — arquitectura, instalación, despliegue
+- [Modelo de datos](docs/data-model.md)
 - [Contrato de datos](docs/data-contract.md)
-- [Contribuir / Git](docs/CONTRIBUTING.md)
 - [Backend Supabase](supabase/README.md)
+- [Contribuir / Git](docs/CONTRIBUTING.md)
