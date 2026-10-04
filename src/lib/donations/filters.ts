@@ -82,6 +82,17 @@ export function parseDonationFilters(
   };
 }
 
+export function hasActiveSearchFilters(filters: DonationSearchFilters): boolean {
+  return Boolean(
+    filters.q || filters.currency || filters.method || filters.from || filters.to,
+  );
+}
+
+export function donationsListHref(filters: Partial<DonationListParams>): string {
+  const query = serializeDonationFilters(filters).toString();
+  return query ? `/donations?${query}` : "/donations";
+}
+
 export function serializeDonationFilters(
   filters: Partial<DonationListParams>,
 ): URLSearchParams {

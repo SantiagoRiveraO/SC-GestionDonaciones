@@ -53,6 +53,36 @@ function parseFilterOptions(value: Json | null): DonationFilterOptions {
   };
 }
 
+async function countDonations(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  filters: DonationSearchFilters,
+): Promise<number> {
+  const { count, error } = await supabase.rpc(
+    "search_donations",
+    toRpcFilters(filters),
+    { count: "exact", head: true },
+  );
+
+  if (error) {
+    throwQueryError("No se pudieron cargar las donaciones.");
+  }
+
+  return count ?? 0;
+}
+
+function toListResult(
+  rows: DonationListRow[],
+  total: number,
+  page: number,
+): DonationListResult {
+  return {
+    rows,
+    total,
+    page,
+    pageCount: total === 0 ? 0 : Math.ceil(total / DONATION_PAGE_SIZE),
+  };
+}
+
 export async function listDonations(
   filters: DonationSearchFilters,
   page: number,
@@ -68,18 +98,16 @@ export async function listDonations(
     .order("created_at", { ascending: false })
     .range(from, to);
 
+  if (error?.code === "PGRST103") {
+    const total = await countDonations(supabase, filters);
+    return toListResult([], total, safePage);
+  }
+
   if (error) {
     throwQueryError("No se pudieron cargar las donaciones.");
   }
 
-  const total = count ?? 0;
-
-  return {
-    rows: data ?? [],
-    total,
-    page: safePage,
-    pageCount: total === 0 ? 0 : Math.ceil(total / DONATION_PAGE_SIZE),
-  };
+  return toListResult(data ?? [], count ?? 0, safePage);
 }
 
 export async function getDonationSummary(
