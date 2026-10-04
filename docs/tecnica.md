@@ -97,6 +97,11 @@ Para agregar una migración nueva: `npx supabase migration new nombre_corto` (cr
 
 ## Despliegue
 
+Producción actual:
+
+- **App:** https://sc-gestion-donaciones.vercel.app (proyecto `sc-gestion-donaciones` en Vercel).
+- **Base:** proyecto de Supabase "MS servicio comunitario" (`https://vwszdrprqpspqeaowhwd.supabase.co`). Las dos migraciones se aplicaron el 2026-10-04 sin seed, y su historial coincide con `supabase/migrations/`.
+
 ### Supabase producción
 
 ```bash
