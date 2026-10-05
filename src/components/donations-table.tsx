@@ -1,102 +1,41 @@
 import Link from "next/link";
-import {
-  Banknote,
-  Gift,
-  Landmark,
-  Send,
-  Smartphone,
-  Wallet,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { formatDate } from "@/lib/format";
 import { donationValueLabel } from "@/lib/donations/presentation";
 import type { DonationListRow } from "@/types/database";
 
-const focusRing =
-  "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
-
-type DonationsTableProps = {
-  rows: DonationListRow[];
-  total: number;
-};
-
-function donationDate(donation: DonationListRow) {
-  return donation.donated_at ? formatDate(donation.donated_at) : "—";
-}
-
-function MethodIcon({ method }: { method: string | null }) {
-  const iconClass = "size-4";
-
-  switch ((method ?? "").trim().toLowerCase()) {
-    case "efectivo":
-      return <Banknote aria-hidden className={iconClass} />;
-    case "transferencia":
-      return <Landmark aria-hidden className={iconClass} />;
-    case "pago móvil":
-    case "pago movil":
-      return <Smartphone aria-hidden className={iconClass} />;
-    case "zelle":
-      return <Send aria-hidden className={iconClass} />;
-    case "en especie":
-      return <Gift aria-hidden className={iconClass} />;
-    default:
-      return <Wallet aria-hidden className={iconClass} />;
-  }
-}
-
 function DonationRowContent({ donation }: { donation: DonationListRow }) {
+  const supplies = donation.kind === "supplies";
   return (
-    <>
-      <div className="min-w-0 space-y-1">
-        <p className="text-ink-soft">{donationDate(donation)}</p>
-        <p className="font-bold text-ink">
-          {donation.donor_name?.trim() || "Sin donante"}
-        </p>
-        {donation.item_description ? <p className="break-words text-ink">{donation.item_description}</p> : null}
-        {donation.concept && donation.concept !== donation.item_description ? (
-          <p className="text-ink">{donation.concept}</p>
-        ) : null}
+    <div className="space-y-2">
+      <div className="flex flex-wrap justify-between gap-x-4 text-[16px] text-ink-soft">
+        <p>{donation.donated_at ? formatDate(donation.donated_at) : "Fecha no indicada"}</p>
+        <p>{supplies ? "Insumos" : "Dinero"}</p>
       </div>
-      <div className="flex min-w-0 flex-col gap-2 sm:items-end sm:text-right">
-        <p className="break-words text-lg font-bold text-ink">{donationValueLabel(donation)}</p>
-        <Badge icon={donation.kind === "supplies" ? <Gift aria-hidden className="size-4" /> : <MethodIcon method={donation.method} />}>
-          {donation.kind === "supplies" ? "Insumos" : donation.method?.trim() || "Dinero"}
-        </Badge>
-        {donation.kind === "supplies" && donation.category_name ? <Badge>{donation.category_name}</Badge> : null}
+      <div className="flex items-start justify-between gap-3">
+        <p className="min-w-0 break-words font-bold text-ink">{donation.donor_name?.trim() || "Donante no identificado"}</p>
+        {donation.id && <ChevronRight aria-hidden className="size-5 shrink-0 text-brand" />}
       </div>
-    </>
+      {supplies && <p className="break-words text-xl font-bold text-ink">{donation.item_description}</p>}
+      <p className={`break-words font-bold tabular-nums ${supplies ? "text-lg text-ink" : "text-[24px] leading-tight text-ink"}`}>{donationValueLabel(donation)}</p>
+      {(supplies ? donation.category_name : donation.method) && <p className="break-words text-[16px] text-ink-soft">{supplies ? donation.category_name : donation.method}</p>}
+      {donation.concept && donation.concept !== donation.item_description && <p className="break-words text-[16px] text-ink-soft">{donation.concept}</p>}
+      {donation.id && <span className="sr-only">Ver donación</span>}
+    </div>
   );
 }
 
-export function DonationsTable({ rows, total }: DonationsTableProps) {
+export function DonationsTable({ rows, total }: { rows: DonationListRow[]; total: number }) {
   return (
-    <ul
-      className="space-y-3"
-      aria-label={`Donaciones encontradas (${total})`}
-    >
-      {rows.map((donation, index) => {
-        const href = donation.id ? `/donations/${donation.id}` : undefined;
-
-        return (
-          <li key={donation.id ?? `donation-${index}`}>
-            {href ? (
-              <Card className="p-0">
-                <Link
-                  href={href}
-                  className={`flex min-h-[72px] flex-col justify-between gap-2 rounded-[12px] p-4 sm:flex-row sm:items-center sm:gap-4 ${focusRing}`}
-                >
-                  <DonationRowContent donation={donation} />
-                </Link>
-              </Card>
-            ) : (
-              <Card className="flex min-h-[72px] flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center">
-                <DonationRowContent donation={donation} />
-              </Card>
-            )}
-          </li>
-        );
-      })}
+    <ul className="grid gap-3 md:grid-cols-2" aria-label={`Donaciones encontradas (${total})`}>
+      {rows.map((donation, index) => (
+        <li key={donation.id ?? `donation-${index}`}>
+          <Card className="h-full p-0">
+            {donation.id ? <Link href={`/donations/${donation.id}`} className="block h-full min-h-[72px] rounded-[12px] p-4 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand"><DonationRowContent donation={donation} /></Link> : <div className="p-4"><DonationRowContent donation={donation} /></div>}
+          </Card>
+        </li>
+      ))}
     </ul>
   );
 }

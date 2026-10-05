@@ -32,7 +32,7 @@ export function DonationsPagination({
   return (
     <nav
       aria-label="Paginación"
-      className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:justify-between"
     >
       {canGoPrevious ? (
         <ButtonLink href={previousHref} variant="secondary">
@@ -43,7 +43,7 @@ export function DonationsPagination({
           ← Anterior
         </Button>
       )}
-      <p className="text-center font-medium text-ink">
+      <p className="col-span-2 row-start-1 text-center font-medium text-ink">
         Página {page} de {pageCount}
       </p>
       {canGoNext ? (

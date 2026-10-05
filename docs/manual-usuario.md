@@ -67,13 +67,13 @@ Se muestran hasta 25 donaciones por página. Usa **Anterior** y **Siguiente** si
 
 ## Administrar categorías
 
-En el apartado Categoría de los insumos está **Editar categorías**. Guarda primero la donación si tienes cambios pendientes. En esa pantalla puedes agregar una categoría o escribir un nombre nuevo y pulsar **Guardar nombre**. El nombre actualizado aparece también en las donaciones que ya usan esa categoría.
+En el apartado Categoría de los insumos está **Editar categorías**. Guarda primero la donación si tienes cambios pendientes. En esa pantalla puedes agregar una categoría. Para cambiar un nombre, toca la categoría, escribe el nombre nuevo y pulsa **Guardar nombre**. El nombre actualizado aparece también en las donaciones que ya usan esa categoría.
 
 ## Editar y eliminar
 
 Desde el detalle, pulsa **Editar**, cambia lo necesario y pulsa **Guardar** (en escritorio, **Guardar donación**). Puedes cambiar entre Dinero e Insumos; se guardan los datos del tipo elegido.
 
-El detalle indica quién registró y editó la donación y cuándo, en hora de Caracas.
+En el detalle, **Datos del registro** muestra quién registró y editó la donación y cuándo, en hora de Caracas.
 
 **Eliminar** abre una ventana de confirmación con los datos de la donación. **No, volver** cancela. **Sí, eliminar** borra el registro; no se puede recuperar desde la app.
 
@@ -83,7 +83,7 @@ Pulsa **Donantes** y luego **Registrar** (en escritorio, **Registrar donante**).
 
 Busca por nombre, teléfono o correo y pulsa **Buscar**. **Ordenar donantes** abre las opciones de orden. **Ordenar por** permite consultar quienes han hecho más donaciones, quienes han aportado más dinero en una moneda, los más recientes o la lista por nombre. No se convierten ni se mezclan monedas.
 
-Abre una tarjeta para ver los datos de contacto, los aportes y el historial. **Editar datos** permite corregir el nombre sin perder sus donaciones. **Registrar donación de este donante** abre el formulario con su ficha seleccionada. También puedes abrir su ficha desde el detalle de una donación.
+Abre una tarjeta para ver los datos de contacto, los aportes y el historial. **Editar datos** permite corregir el nombre sin perder sus donaciones. **Registrar donación**, desde su ficha, abre el formulario con ese donante seleccionado. También puedes abrir su ficha desde el detalle de una donación.
 
 ## Ver el resumen
 

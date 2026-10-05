@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { DonationFilters } from "@/components/donation-filters";
 import { DonationsPagination } from "@/components/donations-pagination";
 import { DonationsTable } from "@/components/donations-table";
+import { DonationTotals } from "@/components/donation-totals";
 import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -52,9 +53,9 @@ export function DonationsList({
 }: DonationsListProps) {
   const filtersActive = hasActiveSearchFilters(filters);
   const outOfRange = list.total > 0 && list.rows.length === 0;
-  const countLabel =
-    list.total === 1 ? "1 donación" : `${list.total} donaciones`;
-  const totals = donationSummaryLabels(summary);
+  const moneyRows = summary.filter((row) => row.kind === "money");
+  const moneyCount = moneyRows.reduce((sum, row) => sum + row.donation_count, 0);
+  const suppliesCount = summary.filter((row) => row.kind === "supplies").reduce((sum, row) => sum + row.donation_count, 0);
 
   return (
     <div className="space-y-4">
@@ -65,18 +66,7 @@ export function DonationsList({
         categories={categories}
       />
 
-      <Card
-        className="space-y-1 border-brand-soft bg-brand-soft px-4 py-3"
-        aria-live="polite"
-        data-testid="donations-summary"
-      >
-        <p className="text-xl leading-tight font-bold text-ink">
-          {countLabel}
-        </p>
-        {totals.length > 0 ? (
-          <p className="text-[16px] text-brand">{totals.join(" · ")}</p>
-        ) : null}
-      </Card>
+      {list.total > 0 && <DonationTotals title={filtersActive ? "Resultados" : "Totales"} total={list.total} moneyCount={moneyCount} suppliesCount={suppliesCount} moneyLabels={donationSummaryLabels(moneyRows)} filtered={filtersActive} />}
 
       {list.total === 0 && !filtersActive ? (
         <EmptyState

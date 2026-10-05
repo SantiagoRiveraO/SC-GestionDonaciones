@@ -99,3 +99,15 @@ Se consultaron las guías de [formularios de W3C WAI](https://www.w3.org/WAI/tut
 - Menú inferior estable con Registrar destacado en el centro, y espacio reservado debajo del contenido. Resumen conserva su lugar como consulta secundaria.
 - Evitar que buscar, ordenar y los totales oculten los primeros registros de la lista.
 - Mantener controles de 48 px, etiquetas visibles, letra principal de 18 px y contraste. Reducir controles repetidos y márgenes, sin encoger indiscriminadamente el texto.
+
+## Revisión de claridad de los datos
+
+Se revisaron además la [jerarquía visual de NN/g](https://www.nngroup.com/articles/visual-hierarchy-ux-definition/) y la [estructura de páginas de W3C](https://www.w3.org/WAI/tutorials/page-structure/). La guía de W3C para personas mayores recomienda etiquetas descriptivas, agrupación clara y listas verticales en lugar de listas en línea.
+
+- Donaciones, Inicio, Resumen y las fichas de donantes comparten un bloque de totales: cantidad de donaciones en el encabezado, dinero en filas por moneda e insumos como cantidad de donaciones. No se suman ni se presentan como comparables dinero y artículos.
+- Las tarjetas diferencian nombre, fecha, importe o descripción de insumos y datos secundarios; las cápsulas no se usan como contenedores de importes. Al ordenar donantes por dinero, el importe de la moneda seleccionada aparece una sola vez.
+- El detalle omite filas vacías de concepto y notas, conserva la identificación del donante y agrupa la autoría y las fechas de cambios en Datos del registro. Eliminar conserva su confirmación y tiene menos peso visual que la consulta y edición.
+- Categorías permite abrir el formulario de un nombre a la vez. La paginación mantiene Anterior y Siguiente juntos en teléfono.
+- Los encabezados de listados no parten una palabra para acomodar una acción. El acceso reduce la altura del logo en móvil y conserva campos, etiquetas y controles grandes.
+
+Estas revisiones son comprobaciones de presentación con datos ficticios; no sustituyen observar a las personas que usarán el sistema.

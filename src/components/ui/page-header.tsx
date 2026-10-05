@@ -21,7 +21,7 @@ export function PageHeader({
   compactActions?: boolean;
 }) {
   if (compactActions) return <header className="space-y-2">
-    <div className="flex items-center justify-between gap-3"><h1 className="min-w-0 break-words text-[25px] leading-tight font-bold text-ink min-[360px]:text-[28px]">{title}</h1><div className="shrink-0">{actions}</div></div>
+    <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="max-w-full shrink-0 break-words text-[24px] leading-tight font-bold text-ink min-[360px]:text-[28px]">{title}</h1><div className="shrink-0">{actions}</div></div>
     {description && <p className="text-ink-soft">{description}</p>}
   </header>;
   return (

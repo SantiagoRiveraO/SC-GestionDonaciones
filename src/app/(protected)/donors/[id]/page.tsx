@@ -4,7 +4,7 @@ import { CirclePlus, Pencil } from "lucide-react";
 import { DonationsTable } from "@/components/donations-table";
 import { RecordPagination } from "@/components/record-pagination";
 import { Alert } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
+import { DonationTotals } from "@/components/donation-totals";
 import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
@@ -31,7 +31,7 @@ export default async function DonorPage({ params, searchParams }: { params: Prom
       <PageHeader title={donor.full_name ?? "Donante"} backHref="/donors" backLabel="Donantes" />
       {query.estado === "creado" || query.estado === "actualizado" ? <Alert variant="success">{query.estado === "creado" ? "Donante registrado." : "Cambios guardados."}</Alert> : null}
       <div className="flex flex-col gap-3 sm:flex-row">
-        <ButtonLink href={`/donations/new?donante=${id}`} icon={<CirclePlus aria-hidden className="size-5" />}>Registrar donación de este donante</ButtonLink>
+        <ButtonLink href={`/donations/new?donante=${id}`} aria-label="Registrar donación de este donante" icon={<CirclePlus aria-hidden className="size-5" />}>Registrar donación</ButtonLink>
         <ButtonLink href={`/donors/${id}/edit`} variant="secondary" icon={<Pencil aria-hidden className="size-5" />}>Editar datos</ButtonLink>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -43,14 +43,7 @@ export default async function DonorPage({ params, searchParams }: { params: Prom
           </dl>
           {donor.notes ? <div className="space-y-1 border-t border-zinc-300 pt-4"><h3 className="font-bold text-ink">Notas</h3><p className="break-words whitespace-pre-line text-ink">{donor.notes}</p></div> : null}
         </Card>
-        <Card className="space-y-3 border-brand-soft bg-brand-soft p-5 sm:p-6">
-          <h2 className="text-xl font-bold text-ink">Aportes a la fundación</h2>
-          <p className="text-[30px] font-bold text-ink">{count} {count === 1 ? "donación" : "donaciones"}</p>
-          <p className="text-ink">{donor.money_count ?? 0} de dinero · {donor.supplies_count ?? 0} de insumos</p>
-          {money.length ? <div className="flex flex-wrap gap-2">{money.map((label) => <Badge key={label} className="bg-surface">{label}</Badge>)}</div> : null}
-          <p className="text-ink-soft">El dinero se suma por moneda. Los insumos se cuentan por donación.</p>
-          {donor.last_donation_date ? <p className="text-ink">Última donación: {formatDate(donor.last_donation_date)}</p> : null}
-        </Card>
+        <div className="space-y-3"><DonationTotals title="Aportes registrados" total={count} moneyCount={donor.money_count ?? 0} suppliesCount={donor.supplies_count ?? 0} moneyLabels={money} />{donor.last_donation_date ? <p className="text-ink-soft">Última donación: {formatDate(donor.last_donation_date)}</p> : null}</div>
       </div>
       <section className="space-y-4" aria-labelledby="donor-history-title">
         <h2 id="donor-history-title" className="text-xl font-bold text-ink">Historial de donaciones</h2>

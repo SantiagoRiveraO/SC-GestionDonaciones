@@ -55,7 +55,7 @@ export default async function DonationsPage({
           <ButtonLink
             href="/donations/new"
             aria-label="Registrar donación"
-            className="px-3"
+            className="px-2 min-[360px]:px-3"
             icon={<CirclePlus aria-hidden className="hidden size-5 sm:block" />}
           >
             <span className="sm:hidden">Registrar</span><span className="hidden sm:inline">Registrar donación</span>

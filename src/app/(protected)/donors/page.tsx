@@ -18,7 +18,7 @@ export default async function DonorsPage({ searchParams }: { searchParams: Promi
   const currencies = [...new Set(["USD", "VES", "EUR", ...options.currencies, filters.currency])];
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
-      <PageHeader title="Donantes" compactActions description="Contactos e historial de sus aportes." actions={<ButtonLink href="/donors/new" aria-label="Registrar donante" className="px-3" icon={<UserPlus aria-hidden className="hidden size-5 sm:block" />}><span className="sm:hidden">Registrar</span><span className="hidden sm:inline">Registrar donante</span></ButtonLink>} />
+      <PageHeader title="Donantes" compactActions description="Contactos e historial de sus aportes." actions={<ButtonLink href="/donors/new" aria-label="Registrar donante" className="px-2 min-[360px]:px-3" icon={<UserPlus aria-hidden className="hidden size-5 sm:block" />}><span className="sm:hidden">Registrar</span><span className="hidden sm:inline">Registrar donante</span></ButtonLink>} />
       <DonorFiltersControl key={filters.q} filters={filters} currencies={currencies} />
       <p className="text-xl font-bold text-ink" aria-live="polite">{list.total} {list.total === 1 ? "donante" : "donantes"}{filters.q ? (list.total === 1 ? " encontrado" : " encontrados") : (list.total === 1 ? " registrado" : " registrados")}</p>
       {list.rows.length ? <DonorList rows={list.rows} filters={filters} /> : (

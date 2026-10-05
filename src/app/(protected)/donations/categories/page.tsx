@@ -1,6 +1,7 @@
 import { CategoryEditor } from "@/components/category-editor";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { Disclosure } from "@/components/ui/disclosure";
 import { listSupplyCategories } from "@/lib/donations/queries";
 
 export default async function CategoriesPage() {
@@ -12,8 +13,9 @@ export default async function CategoriesPage() {
         <h2 className="text-xl font-bold text-ink">Agregar una categoría</h2>
         <CategoryEditor />
       </Card>
-      <h2 className="text-xl font-bold text-ink">Cambiar nombres</h2>
-      {categories.map((category) => <Card key={category.value} className="p-5"><CategoryEditor category={category} /></Card>)}
+      <section className="space-y-3"><h2 className="text-xl font-bold text-ink">Cambiar nombres</h2><p className="text-ink-soft">Toca una categoría para editar su nombre.</p>
+      {categories.map((category) => <Disclosure key={category.value} title={category.label}><CategoryEditor category={category} /></Disclosure>)}
+      </section>
     </main>
   );
 }

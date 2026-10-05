@@ -35,7 +35,8 @@ export function DeleteDonationButton({
       <Button
         ref={triggerRef}
         type="button"
-        variant="danger"
+        variant="ghost"
+        className="border border-red-700 text-red-700"
         icon={<Trash2 aria-hidden className="size-5" />}
         onClick={openDialog}
       >
