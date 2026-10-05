@@ -1,8 +1,8 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Search } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { startTransition, useEffect, useRef, useState } from "react";
+import { startTransition, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
@@ -44,8 +44,6 @@ export function DonationFilters({
   categories,
 }: DonationFiltersProps) {
   const router = useRouter();
-  const filtersRef = useRef(filters);
-  const debounceRef = useRef<number | undefined>(undefined);
   const [query, setQuery] = useState(filters.q ?? "");
   const [prevQueryParam, setPrevQueryParam] = useState(filters.q);
   const [filtersOpen, setFiltersOpen] = useState(hasAdvancedFilters(filters));
@@ -58,32 +56,10 @@ export function DonationFilters({
     setQuery(filters.q ?? "");
   }
 
-  useEffect(() => {
-    filtersRef.current = filters;
-  }, [filters]);
-
-  useEffect(() => {
-    return () => window.clearTimeout(debounceRef.current);
-  }, []);
-
   function replaceFilters(next: DonationSearchFilters) {
     startTransition(() => {
-      router.replace(donationsListHref({ ...next, page: 1 }));
+      router.replace(donationsListHref({ ...next, q: query.trim() || null, page: 1 }));
     });
-  }
-
-  function handleQueryChange(value: string) {
-    setQuery(value);
-    window.clearTimeout(debounceRef.current);
-    debounceRef.current = window.setTimeout(() => {
-      debounceRef.current = undefined;
-      const nextQuery = value.trim() === "" ? null : value.trim();
-      if (nextQuery === filtersRef.current.q) {
-        return;
-      }
-
-      replaceFilters({ ...filtersRef.current, q: nextQuery });
-    }, 300);
   }
 
   function clearFilters() {
@@ -96,30 +72,30 @@ export function DonationFilters({
 
   return (
     <Card className="space-y-4 p-4">
-      <section aria-label="Búsqueda y filtros" className="space-y-4">
+      <form aria-label="Búsqueda y filtros" className="space-y-3" onSubmit={(event) => { event.preventDefault(); replaceFilters(filters); }}>
         <div className="space-y-1.5">
           <label htmlFor="donation-search" className="font-bold text-ink">
-            Buscar por donante, insumos, concepto o método
+            Buscar donaciones
           </label>
-          <div className="relative">
-            <Search
-              aria-hidden
-              className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-ink-soft"
-            />
+          <div className="flex gap-2">
             <input
               id="donation-search"
               type="search"
+              placeholder="Buscar…"
               value={query}
-              onChange={(event) => handleQueryChange(event.target.value)}
-              className={`${fieldClassName} pl-11`}
+              onChange={(event) => setQuery(event.target.value)}
+              className={`${fieldClassName} min-w-0 flex-1`}
             />
+            <Button type="submit" className="shrink-0 px-3">Buscar</Button>
           </div>
+          <p className="text-[16px] text-ink-soft">Donante, insumo o concepto.</p>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className="flex flex-wrap gap-3">
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
+            className="px-0 underline"
             aria-expanded={filtersOpen}
             aria-controls="donation-advanced-filters"
             icon={
@@ -247,7 +223,7 @@ export function DonationFilters({
             </Field>
           </div>
         ) : null}
-      </section>
+      </form>
     </Card>
   );
 }

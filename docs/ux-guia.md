@@ -20,7 +20,7 @@ Fuentes:
 ## 2. No perderse
 - **Encabezado fijo, igual en todas las pantallas:**
   - el logo y el nombre de la fundación, que llevan al inicio;
-  - tres opciones con ícono y texto: **Inicio**, **Donaciones** y **Registrar donación** (esta última destacada);
+  - cinco opciones con ícono y texto: **Inicio**, **Donaciones**, **Donantes**, **Resumen** y **Registrar donación** (esta última destacada y centrada en teléfono);
   - **Cerrar sesión**.
   - La opción actual se marca con color y subrayado, no solo con color.
 - **Pantalla de inicio**: lo primero que se ve al entrar.
@@ -37,15 +37,15 @@ Fuentes:
 - Los formularios van en una sola columna, con la etiqueta arriba del campo.
 - Cada campo con dudas posibles lleva un texto de ayuda debajo, por ejemplo: "Ejemplo: 25,50".
 - Los campos opcionales dicen "(opcional)". No se usan asteriscos.
-- **Monto flexible**: acepta `25,50`, `25.50`, `1.250,50` y `1250`. Lo convertimos nosotros: nunca se rechaza por el formato.
+- **Monto flexible con validación**: acepta `25,50`, `25.50`, `1.250,50` y `1250`. Acepta separadores correctamente agrupados y rechaza los que podrían cambiar el monto por un error al escribir.
 - La fecha viene puesta con la de hoy.
-- Primero se elige qué se recibió con dos botones grandes: **Dinero** o **Insumos**. Los datos escritos se conservan al alternar antes de guardar.
-- Dinero muestra monto, moneda y método de pago (Efectivo, Transferencia, Pago móvil, Zelle). "Otro" abre un campo de texto.
+- Primero se elige qué se recibió con una acción principal y dos accesos secundarios: **Dinero** o **Insumos**. Los datos escritos se conservan al alternar antes de guardar.
+- Dinero muestra monto y moneda. Más detalles (opcional) permite indicar el método de pago, concepto y notas. Otro abre un campo de texto.
 - Insumos muestra descripción (obligatoria), cantidad y unidad (opcionales, se indican juntas). Ejemplo: arroz, 2,50 kg. No requiere inventar un valor de dinero.
-- La categoría de insumos es opcional: seis opciones iniciales y un catálogo editable, con controles de 64 px, etiqueta escrita y selección perceptible por forma y color. **Agregar nueva categoría** permite crearla sin salir ni perder datos y la selecciona automáticamente. **Administrar categorías** permite cambiar los nombres. En 360 px se usa una columna para evitar textos apretados. La descripción pregunta **¿Qué se recibió?** y la unidad **¿Cómo se cuenta?**. Ejemplo: Alimentos, sacos de harina, 3 sacos.
+- La categoría de insumos es opcional y usa un selector nativo de 48 px, en lugar de una lista extensa de botones. Nueva categoría permite crearla sin salir ni perder datos; Editar categorías abre el catálogo. La descripción pregunta Insumos recibidos, y Cantidad y Unidad comparten una fila. Ejemplo: Alimentos, sacos de harina, 3 sacos.
 - Se toman como referencia las [recomendaciones WAI para personas mayores](https://www.w3.org/WAI/older-users/developing/) y el patrón de [etiquetas claras de W3C](https://www.w3.org/WAI/WCAG2/supplemental/patterns/o4p06-clear-labels/): opciones reconocibles, ayudas visibles y lenguaje cotidiano. La validación con personal real de la fundación sigue siendo necesaria para comprobar facilidad de uso.
 - Inicio y listado muestran los totales de dinero por moneda y el número de donaciones de insumos por separado. No se suman kg con cajas ni artículos distintos.
-- La moneda se elige con tres botones grandes: USD, VES y EUR.
+- Monto y moneda comparten una fila. Un selector nativo ofrece USD, VES y EUR.
 
 ## 4. Errores que no asustan
 - Se valida solo al pulsar Guardar, nunca mientras se escribe.
@@ -54,7 +54,7 @@ Fuentes:
   - cada campo muestra su mensaje debajo;
   - no se pierde nada de lo escrito.
 - Los mensajes dicen qué pasó y cómo arreglarlo. Ejemplo: "La fecha no puede ser futura. Revisa el día."
-- **Confirmación antes de eliminar**: una ventana propia, no la del navegador, con el texto "¿Eliminar esta donación? No se podrá recuperar." y dos botones grandes: "Sí, eliminar" (rojo) y "No, volver".
+- **Confirmación antes de eliminar**: una ventana propia, no la del navegador, con el texto "¿Eliminar esta donación? No se podrá recuperar." y una acción principal y dos accesos secundarios: "Sí, eliminar" (rojo) y "No, volver".
 - Los mensajes de éxito son grandes, verdes y con ícono de check. **No desaparecen solos**, porque no ponemos límites de tiempo.
 
 ## 5. Agradable a la vista
@@ -79,11 +79,23 @@ Fuentes:
 
 ## 6. Teléfono
 - Todo debe funcionar en 360 px de ancho, sin scroll horizontal.
-- En el teléfono, el menú del encabezado se vuelve una barra inferior fija con cinco opciones: Inicio, Donaciones, Donantes, Resumen y Registrar.
+- En el teléfono, el menú del encabezado se vuelve una barra inferior fija con cinco opciones: Inicio, Donaciones, Registrar, Donantes y Resumen.
 - Las listas se ven como tarjetas.
 
 ## 7. Donantes y resumen
 - Donantes usa los mismos campos, mensajes de error, tarjetas y botones del resto del sistema. Solo exige un nombre.
-- Las fichas permiten registrar otro aporte con el nombre rellenado y conservar el historial al editar los datos.
+- Las fichas permiten registrar otro aporte con la ficha seleccionada y conservar el historial al editar los datos.
 - Resumen tiene una opción propia en el menú y un enlace secundario en Inicio. No desplaza la acción principal de registrar donaciones.
 - Los gráficos de barras tienen un eje numérico común desde cero, líneas de referencia y nombres y valores escritos al lado. No usan fondos que se rellenan como indicadores de progreso. El color no es la única fuente de información. Se separan las monedas y se cuentan registros de insumos, sin sumar unidades incompatibles.
+
+## Revisión móvil del 5 de octubre de 2026
+
+Se consultaron las guías de [formularios de W3C WAI](https://www.w3.org/WAI/tutorials/forms/), [personas mayores de W3C](https://www.w3.org/WAI/older-users/developing/) y [divulgación progresiva de Nielsen Norman Group](https://www.nngroup.com/articles/progressive-disclosure/).
+
+- Mantener visibles los datos fundamentales: tipo, monto y moneda o descripción y cantidad de insumos, fecha y donante.
+- Mostrar los datos adicionales mediante Más detalles (opcional), y abrirlos si contienen datos al editar o errores al guardar. Cerrarlos no borra su contenido.
+- Buscar donaciones y donantes con Buscar o Enter: no cambiar la pantalla mientras la persona escribe.
+- Conservar la selección de donantes por ID. Una casilla explícita permite indicar No se conoce el donante; el alta de nuevas fichas y la prevención de duplicados no cambian.
+- Menú inferior estable con Registrar destacado en el centro, y espacio reservado debajo del contenido. Resumen conserva su lugar como consulta secundaria.
+- Evitar que buscar, ordenar y los totales oculten los primeros registros de la lista.
+- Mantener controles de 48 px, etiquetas visibles, letra principal de 18 px y contraste. Reducir controles repetidos y márgenes, sin encoger indiscriminadamente el texto.

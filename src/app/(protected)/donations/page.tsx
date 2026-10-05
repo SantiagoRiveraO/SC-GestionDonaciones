@@ -49,13 +49,16 @@ export default async function DonationsPage({
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
       <PageHeader
         title="Donaciones"
+        compactActions
         description="Dinero e insumos recibidos por la fundación."
         actions={
           <ButtonLink
             href="/donations/new"
-            icon={<CirclePlus aria-hidden className="size-5" />}
+            aria-label="Registrar donación"
+            className="px-3"
+            icon={<CirclePlus aria-hidden className="hidden size-5 sm:block" />}
           >
-            Registrar donación
+            <span className="sm:hidden">Registrar</span><span className="hidden sm:inline">Registrar donación</span>
           </ButtonLink>
         }
       />

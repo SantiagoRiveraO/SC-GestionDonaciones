@@ -11,13 +11,19 @@ export function PageHeader({
   backHref,
   backLabel,
   actions,
+  compactActions = false,
 }: {
   title: string;
   description?: string;
   backHref?: string;
   backLabel?: string;
   actions?: ReactNode;
+  compactActions?: boolean;
 }) {
+  if (compactActions) return <header className="space-y-2">
+    <div className="flex items-center justify-between gap-3"><h1 className="min-w-0 break-words text-[25px] leading-tight font-bold text-ink min-[360px]:text-[28px]">{title}</h1><div className="shrink-0">{actions}</div></div>
+    {description && <p className="text-ink-soft">{description}</p>}
+  </header>;
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div className="min-w-0 space-y-2">

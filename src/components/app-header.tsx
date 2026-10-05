@@ -10,10 +10,10 @@ export function AppHeader({ displayName }: { displayName: string }) {
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-zinc-300 bg-surface shadow-[0_2px_8px_rgba(24,24,27,0.08)]">
-        <div className="mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-3 px-4 py-2 md:px-6">
+        <div className="mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-3 px-3 py-1 md:px-6 md:py-2">
           <Link
             href="/"
-            className={`flex min-h-[48px] shrink-0 items-center gap-3 whitespace-nowrap ${focusRing}`}
+            className={`flex min-h-[48px] shrink-0 items-center gap-2 whitespace-nowrap ${focusRing}`}
           >
             <Image
               src="/brand/logo-marca.png"
@@ -22,9 +22,10 @@ export function AppHeader({ displayName }: { displayName: string }) {
               height={48}
               priority
               unoptimized
+              className="h-auto w-[40px] md:w-[48px]"
             />
             <span className="flex flex-col leading-tight">
-              <span className="font-bold whitespace-nowrap text-ink">
+              <span className="text-[16px] font-bold whitespace-nowrap text-ink md:text-base">
                 FUNMIAVEN
               </span>
               <span className="hidden text-[15px] whitespace-nowrap text-ink-soft xl:block">

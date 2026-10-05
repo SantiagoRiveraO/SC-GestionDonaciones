@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
+import { Disclosure } from "@/components/ui/disclosure";
 import { DONOR_SORTS, donorsHref, type DonorFilters, type DonorSort } from "@/lib/donors/filters";
 
 const controlClass = "min-h-[48px] w-full rounded-lg border border-zinc-500 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
@@ -15,11 +15,13 @@ export function DonorFiltersControl({ filters, currencies }: { filters: DonorFil
   const [query, setQuery] = useState(filters.q);
   function apply(next: Partial<DonorFilters>) { router.replace(donorsHref({ ...filters, q: query, ...next, page: 1 })); }
   return (
-    <Card className="p-5 sm:p-6">
+    <Card className="p-4 sm:p-5">
       <form onSubmit={(event) => { event.preventDefault(); apply({}); }} className="space-y-4" aria-label="Buscar y ordenar donantes">
-        <Field id="donor-search" label="Buscar por nombre, teléfono o correo">
-          <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} className={controlClass} />
-        </Field>
+        <div className="space-y-2"><label htmlFor="donor-search" className="font-bold text-ink">Buscar donantes</label>
+          <div className="flex gap-2"><input id="donor-search" type="search" placeholder="Buscar…" value={query} onChange={(event) => setQuery(event.target.value)} className={`${controlClass} min-w-0 flex-1`} /><Button type="submit" className="shrink-0 px-3">Buscar</Button></div>
+          <p className="text-[16px] text-ink-soft">Nombre, teléfono o correo.</p>
+        </div>
+        <Disclosure title="Ordenar donantes" open={filters.sort !== "frequency"}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="donor-sort" label="Ordenar por">
             <select value={filters.sort} onChange={(event) => apply({ sort: event.target.value as DonorSort })} className={controlClass}>
@@ -33,10 +35,8 @@ export function DonorFiltersControl({ filters, currencies }: { filters: DonorFil
           </Field> : null}
         </div>
         <p className="text-ink-soft">{filters.sort === "money" ? "Compara solo el dinero de la moneda elegida. Los insumos se cuentan aparte." : "Más donaciones cuenta los aportes de dinero y de insumos."}</p>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button type="submit" icon={<Search aria-hidden className="size-5" />}>Buscar</Button>
-          {filters.q ? <ButtonLink href={donorsHref({ ...filters, q: "", page: 1 })} variant="secondary">Limpiar búsqueda</ButtonLink> : null}
-        </div>
+        </Disclosure>
+        {filters.q ? <ButtonLink href={donorsHref({ ...filters, q: "", page: 1 })} variant="ghost" className="px-0 underline">Limpiar búsqueda</ButtonLink> : null}
       </form>
     </Card>
   );

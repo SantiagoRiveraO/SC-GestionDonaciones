@@ -1,485 +1,106 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import {
-  Banknote,
-  Check,
-  Gift,
-  Landmark,
-  Send,
-  Smartphone,
-  Wallet,
-} from "lucide-react";
-import {
-  createDonation,
-  updateDonation,
-  type DonationActionState,
-} from "@/lib/donations/actions";
-import { localTodayIsoDate } from "@/lib/donations/validation";
+import { Banknote, Check, Gift } from "lucide-react";
+import { createDonation, updateDonation, type DonationActionState } from "@/lib/donations/actions";
+import { localTodayIsoDate, type DonationFieldErrors } from "@/lib/donations/validation";
 import type { SupplyCategoryOption } from "@/lib/donations/categories";
+import type { DonationListRow } from "@/types/database";
+import type { DonorOption } from "@/lib/donors/selection";
 import { AddCategoryControl } from "@/components/category-editor";
 import { DonorPicker } from "@/components/donor-picker";
-import type { DonorOption } from "@/lib/donors/selection";
 import { Alert } from "@/components/ui/alert";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Disclosure } from "@/components/ui/disclosure";
 import { Field } from "@/components/ui/field";
-import type { DonationListRow } from "@/types/database";
-import type { DonationFieldErrors } from "@/lib/donations/validation";
 
-const fieldClassName =
-  "w-full min-h-[48px] rounded-lg border border-zinc-500 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
+const control = "w-full min-w-0 min-h-[48px] rounded-lg border border-zinc-500 bg-surface px-3 text-ink focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand";
+const choice = "flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-zinc-400 px-3 font-bold text-ink has-[:checked]:border-brand has-[:checked]:bg-brand-soft has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-brand";
+const PRESET_METHODS = ["Efectivo", "Transferencia", "Pago móvil", "Zelle"];
+const FIELD_LABELS: Record<keyof DonationFieldErrors, string> = { category: "Categoría", kind: "Tipo de donación", item_description: "Insumos recibidos", quantity: "Cantidad", unit: "Unidad", amount: "Monto", currency: "Moneda", donated_at: "Fecha de la donación", method: "¿Cómo se recibió?", donor_id: "Donante", concept: "Concepto", notes: "Notas" };
+type DonationFormProps = { mode: "create" | "edit"; donationId?: string; initial?: DonationListRow; categories: SupplyCategoryOption[]; selectedDonor?: DonorOption };
 
-const choiceClassName =
-  "flex min-h-[48px] cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-zinc-500 px-3 font-bold text-ink has-[:checked]:border-brand has-[:checked]:bg-brand-soft has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-brand";
-
-const DEFAULT_CURRENCIES = ["USD", "VES", "EUR"] as const;
-const PRESET_METHODS = [
-  "Efectivo",
-  "Transferencia",
-  "Pago móvil",
-  "Zelle",
-] as const;
-
-const FIELD_LABELS: Record<keyof DonationFieldErrors, string> = {
-  category: "Categoría",
-  kind: "Tipo de donación",
-  item_description: "¿Qué se recibió?",
-  quantity: "Cantidad",
-  unit: "¿Cómo se cuenta?",
-  amount: "Monto",
-  currency: "Moneda",
-  donated_at: "Fecha de la donación",
-  method: "¿Cómo se recibió?",
-  donor_id: "Donante",
-  concept: "Concepto",
-  notes: "Notas",
-};
-
-type DonationFormProps = {
-  mode: "create" | "edit";
-  donationId?: string;
-  initial?: DonationListRow;
-  categories: SupplyCategoryOption[];
-  selectedDonor?: DonorOption;
-};
-
-function AmountControl({
-  id,
-  defaultValue,
-  currency,
-  "aria-describedby": describedBy,
-  "aria-invalid": invalid,
-}: {
-  id?: string;
-  defaultValue?: string;
-  currency: string;
-  "aria-describedby"?: string;
-  "aria-invalid"?: boolean;
-}) {
-  return (
-    <div className="flex min-h-[48px] overflow-hidden rounded-lg border border-zinc-500 bg-surface focus-within:ring-[3px] focus-within:ring-brand">
-      <span className="flex items-center bg-brand-soft px-3 font-bold text-brand">
-        {currency}
-      </span>
-      <input
-        id={id}
-        name="amount"
-        type="text"
-        inputMode="decimal"
-        defaultValue={defaultValue}
-        aria-describedby={describedBy}
-        aria-invalid={invalid}
-        className="min-h-[48px] min-w-0 flex-1 bg-transparent px-3 text-ink focus-visible:outline-none"
-      />
-    </div>
-  );
+function MethodFields({ method, error }: { method: string; error?: string }) {
+  const [selected, setSelected] = useState(PRESET_METHODS.includes(method) || !method ? method : "Otro");
+  const [other, setOther] = useState(selected === "Otro" ? method : "");
+  return <div className="space-y-3">
+    <Field id="method" label="¿Cómo se recibió el dinero?" optional error={error}>
+      <select value={selected} onChange={(event) => setSelected(event.target.value)} className={control}>
+        <option value="">Sin indicar</option>
+        {PRESET_METHODS.map((value) => <option key={value}>{value}</option>)}
+        <option>Otro</option>
+      </select>
+    </Field>
+    <input type="hidden" name="method" value={selected === "Otro" ? other : selected} />
+    {selected === "Otro" && <Field id="method-other" label="Escribe el método"><input type="text" value={other} onChange={(event) => setOther(event.target.value)} maxLength={50} className={control} /></Field>}
+  </div>;
 }
 
-function MethodChoiceIcon({ value }: { value: string }) {
-  const iconClass = "size-5";
-
-  switch (value) {
-    case "Efectivo":
-      return <Banknote aria-hidden className={iconClass} />;
-    case "Transferencia":
-      return <Landmark aria-hidden className={iconClass} />;
-    case "Pago móvil":
-      return <Smartphone aria-hidden className={iconClass} />;
-    case "Zelle":
-      return <Send aria-hidden className={iconClass} />;
-    default:
-      return <Wallet aria-hidden className={iconClass} />;
-  }
-}
-
-function methodUiState(method: string) {
-  if (PRESET_METHODS.includes(method as (typeof PRESET_METHODS)[number])) {
-    return { choice: method, other: "" };
-  }
-
-  if (method) {
-    return { choice: "Otro", other: method };
-  }
-
-  return { choice: "", other: "" };
-}
-
-function MethodFields({
-  method,
-  error,
-}: {
-  method: string;
-  error?: string;
-}) {
-  const initial = methodUiState(method);
-  const [choice, setChoice] = useState(initial.choice);
-  const [other, setOther] = useState(initial.other);
-  const errorId = error ? "method-error" : undefined;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <fieldset
-        id="method"
-        aria-invalid={Boolean(error) || undefined}
-        aria-describedby={errorId}
-        className="flex flex-col gap-3"
-      >
-        <legend className="font-bold text-ink">
-          ¿Cómo se recibió el dinero?{" "}
-          <span className="font-normal text-ink-soft">(opcional)</span>
-        </legend>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {PRESET_METHODS.map((value) => (
-            <label key={value} className={choiceClassName}>
-              <input
-                type="radio"
-                name="method_choice"
-                value={value}
-                checked={choice === value}
-                onChange={() => setChoice(value)}
-                className="sr-only"
-              />
-              <MethodChoiceIcon value={value} />
-              {value}
-            </label>
-          ))}
-          <label className={choiceClassName}>
-            <input
-              type="radio"
-              name="method_choice"
-              value="Otro"
-              checked={choice === "Otro"}
-              onChange={() => setChoice("Otro")}
-              className="sr-only"
-            />
-            <MethodChoiceIcon value="Otro" />
-            Otro
-          </label>
-        </div>
-      </fieldset>
-      {choice === "Otro" ? (
-        <Field id="method-other" label="Escribe el método" error={error}>
-          <input
-            name="method"
-            type="text"
-            value={other}
-            onChange={(event) => setOther(event.target.value)}
-            className={fieldClassName}
-          />
-        </Field>
-      ) : (
-        <input type="hidden" name="method" value={choice} />
-      )}
-      {choice !== "Otro" && error ? (
-        <p id="method-error" className="font-medium text-red-700" role="alert">
-          {error}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-function CategoryFields({
-  category,
-  error,
-  categories,
-  onBusyChange,
-}: {
-  category: string;
-  error?: string;
-  categories: SupplyCategoryOption[];
-  onBusyChange: (busy: boolean) => void;
-}) {
+function CategoryFields({ category, error, categories, onBusyChange }: { category: string; error?: string; categories: SupplyCategoryOption[]; onBusyChange: (busy: boolean) => void }) {
   const [selected, setSelected] = useState(category);
   const [added, setAdded] = useState<SupplyCategoryOption[]>([]);
   const [createdName, setCreatedName] = useState("");
   const options = [...categories, ...added.filter((option) => !categories.some((existing) => existing.value === option.value))];
-  return (
-    <fieldset
-      id="category"
-      className="space-y-3"
-      aria-invalid={Boolean(error) || undefined}
-      aria-describedby={error ? "category-error" : "category-hint"}
-    >
-      <legend className="font-bold text-ink">
-        Categoría <span className="font-normal text-ink-soft">(opcional)</span>
-      </legend>
-      <p id="category-hint" className="text-ink-soft">Elige una opción para agrupar los insumos.</p>
-      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3">
-        {options.map(({ value, label }) => (
-          <label key={value} className={`${choiceClassName} min-h-[64px] justify-start py-3`}>
-            <input
-              type="radio"
-              name="category_choice"
-              value={value}
-              checked={selected === value}
-              onChange={() => setSelected(value)}
-              className="size-5 shrink-0 accent-brand"
-            />
-            <span className="min-w-0 break-words">{label}</span>
-          </label>
-        ))}
-      </div>
-      <input type="hidden" name="category" value={selected} />
-      {selected ? (
-        <Button type="button" variant="secondary" onClick={() => setSelected("")}>
-          Quitar categoría
-        </Button>
-      ) : null}
-      <AddCategoryControl onBusyChange={onBusyChange} onCreated={(option) => {
-        setAdded((current) => [...current, option]);
-        setSelected(option.value);
-        setCreatedName(option.label);
-      }} />
-      {createdName ? <p role="status" className="text-ink">Categoría agregada: {createdName}.</p> : null}
-      {error ? (
-        <p id="category-error" role="alert" className="text-red-700">{error}</p>
-      ) : null}
-    </fieldset>
-  );
+  return <div id="category" className="space-y-2">
+    <Field id="category-select" label="Categoría" optional error={error}>
+      <select name="category" value={selected} onChange={(event) => setSelected(event.target.value)} className={control}>
+        <option value="">Sin categoría</option>
+        {options.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
+      </select>
+    </Field>
+    <AddCategoryControl onBusyChange={onBusyChange} onCreated={(option) => { setAdded((current) => [...current, option]); setSelected(option.value); setCreatedName(option.label); }} />
+    <ButtonLink href="/donations/categories" variant="ghost" className="px-0 text-brand underline">Editar categorías</ButtonLink>
+    {createdName && <p role="status" className="text-ink-soft">Categoría agregada: {createdName}.</p>}
+  </div>;
 }
 
-function DonationFields({
-  values,
-  fieldErrors,
-  selectedDonor,
-  onBusyChange,
-  onSelectionChange,
-  onCategoryBusyChange,
-  categories,
-}: {
-  values: {
-    category: string;
-    kind: string;
-    item_description: string;
-    quantity: string;
-    unit: string;
-    amount: string;
-    currency: string;
-    donated_at: string;
-    method: string;
-    donor_name: string;
-    donor_id: string;
-    donor_mode: string;
-    concept: string;
-    notes: string;
-  };
-  fieldErrors: DonationFieldErrors;
-  selectedDonor?: DonorOption;
-  onBusyChange: (busy: boolean) => void;
-  onSelectionChange: (donor: DonorOption) => void;
-  onCategoryBusyChange: (busy: boolean) => void;
-  categories: SupplyCategoryOption[];
+type FormValues = Omit<DonationActionState["values"], "id">;
+function DonationFields({ values, fieldErrors, selectedDonor, onBusyChange, onSelectionChange, onCategoryBusyChange, categories }: {
+  values: FormValues; fieldErrors: DonationFieldErrors; selectedDonor?: DonorOption; onBusyChange: (busy: boolean) => void;
+  onSelectionChange: (donor: DonorOption) => void; onCategoryBusyChange: (busy: boolean) => void; categories: SupplyCategoryOption[];
 }) {
   const [kind, setKind] = useState(values.kind);
-  const initialCurrency = values.currency || "USD";
-  const [currency, setCurrency] = useState(initialCurrency);
-  const currencies = DEFAULT_CURRENCIES.includes(
-    initialCurrency as (typeof DEFAULT_CURRENCIES)[number],
-  )
-    ? [...DEFAULT_CURRENCIES]
-    : [...DEFAULT_CURRENCIES, initialCurrency];
-
-  return (
-    <>
-      <fieldset
-        id="kind"
-        aria-invalid={Boolean(fieldErrors.kind) || undefined}
-        aria-describedby={fieldErrors.kind ? "kind-error" : "kind-hint"}
-        className="space-y-3"
-      >
-        <legend className="font-bold text-ink">Tipo de donación</legend>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className={`${choiceClassName} min-h-[72px]`}>
-            <input
-              type="radio"
-              name="kind"
-              value="money"
-              checked={kind === "money"}
-              onChange={() => setKind("money")}
-              className="sr-only"
-            />
-            <Banknote aria-hidden className="size-6" /> Dinero
-          </label>
-          <label className={`${choiceClassName} min-h-[72px]`}>
-            <input
-              type="radio"
-              name="kind"
-              value="supplies"
-              checked={kind === "supplies"}
-              onChange={() => setKind("supplies")}
-              className="sr-only"
-            />
-            <Gift aria-hidden className="size-6" /> Insumos
-          </label>
-        </div>
-        <p id="kind-hint" className="text-ink-soft">
-          {kind === "supplies"
-            ? "Alimentos, medicinas, ropa u otros artículos. No necesitas indicar un monto de dinero."
-            : "Registra el monto, la moneda y cómo se recibió el dinero."}
-        </p>
-        {fieldErrors.kind ? (
-          <p id="kind-error" className="text-red-700" role="alert">{fieldErrors.kind}</p>
-        ) : null}
+  const [currency, setCurrency] = useState(values.currency || "USD");
+  const currencies = [...new Set(["USD", "VES", "EUR", values.currency].filter(Boolean))];
+  const detailsOpen = Boolean(values.concept || values.notes || (kind === "money" && values.method) || fieldErrors.method || fieldErrors.concept || fieldErrors.notes);
+  return <div className="space-y-5">
+    <fieldset id="kind" className="space-y-2" aria-describedby={fieldErrors.kind ? "kind-error" : undefined}>
+      <legend className="mb-2 font-bold text-ink">¿Qué se recibió?</legend>
+      <div className="grid grid-cols-2 gap-3">
+        {[{ value: "money", label: "Dinero", icon: Banknote }, { value: "supplies", label: "Insumos", icon: Gift }].map(({ value, label, icon: Icon }) => <label key={value} className={choice}>
+          <input type="radio" name="kind" value={value} checked={kind === value} onChange={() => setKind(value)} className="sr-only" /><Icon aria-hidden className="hidden size-5 shrink-0 min-[360px]:block" />{label}
+        </label>)}
+      </div>
+      {fieldErrors.kind && <p id="kind-error" role="alert" className="text-red-700">{fieldErrors.kind}</p>}
+    </fieldset>
+    <div hidden={kind !== "money"}>
+      <fieldset disabled={kind !== "money"} className="grid grid-cols-[minmax(0,1fr)_100px] gap-3">
+        <Field id="amount" label="Monto" hint="Ejemplo: 25,50" error={fieldErrors.amount}><input name="amount" type="text" inputMode="decimal" defaultValue={values.amount} className={control} /></Field>
+        <Field id="currency" label="Moneda" error={fieldErrors.currency}><select name="currency" value={currency} onChange={(event) => setCurrency(event.target.value)} className={control}>{currencies.map((code) => <option key={code}>{code}</option>)}</select></Field>
       </fieldset>
-
-      <div hidden={kind !== "money"}>
-        <fieldset disabled={kind !== "money"} className="flex flex-col gap-5">
-          <Field
-            id="amount"
-            label="Monto"
-            hint="Ejemplo: 25,50"
-            error={fieldErrors.amount}
-          >
-            <AmountControl currency={currency} defaultValue={values.amount} />
-          </Field>
-
-          <fieldset
-            id="currency"
-            aria-invalid={Boolean(fieldErrors.currency) || undefined}
-            aria-describedby={fieldErrors.currency ? "currency-error" : undefined}
-            className="flex flex-col gap-3"
-          >
-            <legend className="font-bold text-ink">Moneda</legend>
-            <div className="grid grid-cols-3 gap-3">
-              {currencies.map((code) => (
-                <label key={code} className={choiceClassName}>
-                  <input
-                    type="radio"
-                    name="currency"
-                    value={code}
-                    checked={currency === code}
-                    onChange={() => setCurrency(code)}
-                    className="sr-only"
-                  />
-                  {code}
-                </label>
-              ))}
-            </div>
-            {fieldErrors.currency ? (
-              <p id="currency-error" className="font-medium text-red-700" role="alert">
-                {fieldErrors.currency}
-              </p>
-            ) : null}
-          </fieldset>
-          <MethodFields method={values.method} error={fieldErrors.method} />
-        </fieldset>
-      </div>
-
-      <div hidden={kind !== "supplies"}>
-        <fieldset disabled={kind !== "supplies"} className="flex flex-col gap-5">
-          <CategoryFields category={values.category} categories={categories} error={fieldErrors.category} onBusyChange={onCategoryBusyChange} />
-          <Field
-            id="item_description"
-            label="¿Qué se recibió?"
-            hint="Ejemplo: sacos de harina, ropa de bebé o pañales talla M."
-            error={fieldErrors.item_description}
-          >
-            <input
-              type="text"
-              name="item_description"
-              defaultValue={values.item_description}
-              maxLength={200}
-              className={fieldClassName}
-            />
-          </Field>
-          <Field
-            id="quantity"
-            label="Cantidad"
-            optional
-            hint="Ejemplo: 10 o 2,50. Puedes dejarla vacía si no conoces la cantidad."
-            error={fieldErrors.quantity}
-          >
-            <input
-              type="text"
-              name="quantity"
-              inputMode="decimal"
-              defaultValue={values.quantity}
-              className={fieldClassName}
-            />
-          </Field>
-          <Field
-            id="unit"
-            label="¿Cómo se cuenta?"
-            optional
-            hint="Si indicas una cantidad, escribe cómo se cuenta. Ejemplo: sacos, cajas, kg o unidades."
-            error={fieldErrors.unit}
-          >
-            <input
-              type="text"
-              name="unit"
-              list="supply-units"
-              defaultValue={values.unit}
-              maxLength={40}
-              className={fieldClassName}
-            />
-          </Field>
-          <datalist id="supply-units">
-            {["sacos", "unidades", "kg", "litros", "cajas", "paquetes", "bolsas"].map((unit) => <option key={unit} value={unit} />)}
-          </datalist>
-        </fieldset>
-      </div>
-
-      <Field
-        id="donated_at"
-        label="Fecha de la donación"
-        hint="Viene marcada la fecha de hoy."
-        error={fieldErrors.donated_at}
-      >
-        <input
-          type="date"
-          name="donated_at"
-          min="2000-01-01"
-          max={localTodayIsoDate()}
-          defaultValue={values.donated_at}
-          className={fieldClassName}
-        />
-      </Field>
-
-      <DonorPicker id={values.donor_id} name={values.donor_name} mode={values.donor_mode} initial={selectedDonor} error={fieldErrors.donor_id} onBusyChange={onBusyChange} onSelectionChange={onSelectionChange} />
-
-      <Field id="concept" label="Concepto" optional error={fieldErrors.concept}>
-        <input
-          type="text"
-          name="concept"
-          defaultValue={values.concept}
-          className={fieldClassName}
-        />
-      </Field>
-
-      <Field id="notes" label="Notas" optional error={fieldErrors.notes}>
-        <textarea
-          name="notes"
-          rows={4}
-          defaultValue={values.notes}
-          className={`${fieldClassName} py-3`}
-        />
-      </Field>
-    </>
-  );
+    </div>
+    <div hidden={kind !== "supplies"}>
+      <fieldset disabled={kind !== "supplies"} className="space-y-4">
+        <Field id="item_description" label="Insumos recibidos" hint="Ejemplo: sacos de harina o ropa." error={fieldErrors.item_description}><input name="item_description" type="text" defaultValue={values.item_description} maxLength={200} className={control} /></Field>
+        <CategoryFields category={values.category} categories={categories} error={fieldErrors.category} onBusyChange={onCategoryBusyChange} />
+        <div className="grid grid-cols-2 gap-3">
+          <Field id="quantity" label="Cantidad" optional error={fieldErrors.quantity}><input name="quantity" type="text" inputMode="decimal" defaultValue={values.quantity} className={control} /></Field>
+          <Field id="unit" label="Unidad" optional error={fieldErrors.unit}><input name="unit" type="text" list="supply-units" defaultValue={values.unit} maxLength={40} placeholder="sacos, kg…" className={control} /></Field>
+        </div>
+        <p className="text-[16px] text-ink-soft">Si no conoces la cantidad, deja ambos campos vacíos.</p>
+        <datalist id="supply-units">{["sacos", "unidades", "kg", "litros", "cajas", "paquetes", "bolsas"].map((unit) => <option key={unit} value={unit} />)}</datalist>
+      </fieldset>
+    </div>
+    <Field id="donated_at" label="Fecha de la donación" error={fieldErrors.donated_at}><input name="donated_at" type="date" min="2000-01-01" max={localTodayIsoDate()} defaultValue={values.donated_at} className={control} /></Field>
+    <div className="border-t border-zinc-200 pt-4"><DonorPicker id={values.donor_id} name={values.donor_name} mode={values.donor_mode} initial={selectedDonor} error={fieldErrors.donor_id} onBusyChange={onBusyChange} onSelectionChange={onSelectionChange} /></div>
+    <Disclosure title="Más detalles (opcional)" open={detailsOpen}>
+      <div hidden={kind !== "money"}><fieldset disabled={kind !== "money"}><MethodFields method={values.method} error={fieldErrors.method} /></fieldset></div>
+      <Field id="concept" label="Concepto" optional hint="Para qué se utilizará la donación." error={fieldErrors.concept}><input name="concept" type="text" defaultValue={values.concept} maxLength={200} className={control} /></Field>
+      <Field id="notes" label="Notas" optional error={fieldErrors.notes}><textarea name="notes" rows={3} defaultValue={values.notes} maxLength={2000} className={`${control} py-3`} /></Field>
+    </Disclosure>
+  </div>;
 }
-
 export function DonationForm({
   mode,
   donationId,
@@ -530,7 +151,7 @@ export function DonationForm({
   }, [state, hasErrors]);
 
   return (
-    <Card className="p-5">
+    <Card className="p-4 sm:p-6">
       <form action={formAction} noValidate className="flex flex-col gap-5">
         {mode === "edit" ? (
           <input type="hidden" name="id" value={values.id} />
@@ -569,20 +190,23 @@ export function DonationForm({
         />
         </fieldset>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-wrap gap-3">
           <Button
             type="submit"
             size="lg"
+            className="min-w-0 flex-1 px-3"
+            aria-label="Guardar donación"
             icon={<Check aria-hidden className="size-5" />}
             loading={pending}
             disabled={donorBusy || categoryBusy}
           >
-            {pending ? "Guardando…" : "Guardar donación"}
+            {pending ? "Guardando…" : <><span className="sm:hidden">Guardar</span><span className="hidden sm:inline">Guardar donación</span></>}
           </Button>
           <ButtonLink
             href={mode === "edit" ? `/donations/${donationId}` : "/donations"}
-            variant="secondary"
+            variant="ghost"
             size="lg"
+            className="px-3 text-brand underline"
             aria-disabled={pending || donorBusy || categoryBusy || undefined}
             onClick={(event) => { if (pending || donorBusy || categoryBusy) event.preventDefault(); }}
           >
@@ -590,10 +214,7 @@ export function DonationForm({
           </ButtonLink>
         </div>
       </form>
-      <div className="mt-5 border-t border-zinc-200 pt-5">
-        <ButtonLink href="/donations/categories" variant="secondary">Administrar categorías</ButtonLink>
-        <p className="mt-2 text-ink-soft">Guarda primero la donación si tienes cambios pendientes.</p>
-      </div>
+
     </Card>
   );
 }

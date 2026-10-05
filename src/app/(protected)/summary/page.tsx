@@ -17,9 +17,9 @@ export default async function SummaryPage({ searchParams }: { searchParams: Prom
   const currencies = [...new Set(["USD", "VES", "EUR", ...Object.keys(data.moneyTotals as object), filters.currency])].sort();
   const moneyLabels = donorMoneyLabels(data.moneyTotals);
   return <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10">
-    <PageHeader title="Resumen" description="Una mirada a todas las donaciones registradas." actions={<ButtonLink href="/" variant="secondary">Volver al inicio</ButtonLink>} />
-    <div className="grid gap-4 sm:grid-cols-3">
-      {[{ label: "Donaciones en total", value: data.total }, { label: "De dinero", value: data.moneyCount }, { label: "De insumos", value: data.suppliesCount }].map((item) => <Card key={item.label} className="space-y-2 p-5"><p className="text-ink-soft">{item.label}</p><p className="text-[30px] font-bold text-ink">{item.value}</p></Card>)}
+    <PageHeader title="Resumen" description="Una mirada a todas las donaciones registradas." />
+    <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      {[{ label: "En total", value: data.total }, { label: "Dinero", value: data.moneyCount }, { label: "Insumos", value: data.suppliesCount }].map((item) => <Card key={item.label} className="space-y-1 p-3 sm:p-5"><p className="text-[16px] text-ink-soft sm:text-base">{item.label}</p><p className="text-[28px] font-bold text-ink">{item.value}</p></Card>)}
     </div>
     {data.total === 0 && <Card className="space-y-3 p-6"><ChartNoAxesCombined aria-hidden className="size-8 text-brand" /><p className="font-bold text-ink">El resumen aparecerá al registrar las primeras donaciones.</p><ButtonLink href="/donations/new">Registrar una donación</ButtonLink></Card>}
     <Card className="space-y-4 p-5 sm:p-6">

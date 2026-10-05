@@ -55,30 +55,30 @@ export function DonorPicker({ id, name, mode: initialMode, initial, error: serve
     } catch { setMessage("No se pudo registrar el donante. Intenta de nuevo."); }
     finally { setPending(false); }
   }
-  const optionButton = (donor: DonorOption) => <Button key={donor.id} type="button" variant="secondary" className="w-full flex-col items-start py-3 text-left" disabled={pending} onClick={() => choose(donor)}><span className="break-words">{donor.full_name}</span><span className="break-all text-[16px] font-normal text-ink-soft">{[donor.phone, donor.email].filter(Boolean).join(" · ") || "Sin datos de contacto"}</span><span className="text-[16px]">Seleccionar este donante</span></Button>;
+  const optionButton = (donor: DonorOption) => <Button key={donor.id} type="button" variant="secondary" className="w-full flex-col items-start gap-1 py-3 text-left" disabled={pending} onClick={() => choose(donor)}><span className="break-words">{donor.full_name}</span><span className="break-all text-[16px] font-normal text-ink-soft">{[donor.phone, donor.email].filter(Boolean).join(" · ") || "Sin datos de contacto"}</span><span className="sr-only">Seleccionar este donante</span></Button>;
 
   return <fieldset id="donor_id" className="space-y-3" aria-invalid={Boolean(error) || undefined} aria-describedby={error ? "donor_id-error" : "donor_id-hint"}>
     <legend className="font-bold text-ink">Donante</legend>
-    <p id="donor_id-hint" className="text-ink-soft">Elige su ficha para conservar juntas todas sus donaciones.</p>
-    <div className="space-y-2">
-      {[{ value: "registered", label: "Elegir un donante" }, { value: "anonymous", label: "Sin donante identificado" }].map((choice) => <label key={choice.value} className="flex min-h-[48px] cursor-pointer items-center gap-3 rounded-lg border border-zinc-500 p-3 text-ink has-[:checked]:border-brand has-[:checked]:bg-brand-soft"><input type="radio" name="donor_mode" value={choice.value} checked={mode === choice.value} disabled={pending} onChange={() => { setMode(choice.value); setSelected(null); setMessage(null); setCreating(false); }} className="size-5 shrink-0 accent-brand" />{choice.label}</label>)}
-    </div>
+    <p id="donor_id-hint" className="sr-only">Busca y selecciona una ficha; escribir no registra un donante.</p>
+    <input type="hidden" name="donor_mode" value={mode} />
     <input type="hidden" name="donor_id" value={mode === "registered" ? selected?.id ?? "" : ""} />
     <input type="hidden" name="donor_name" value={mode === "registered" ? selected?.full_name ?? "" : ""} />
     {mode === "registered" && selected ? <div className="space-y-2 rounded-lg border-2 border-brand bg-brand-soft p-4">
-      <p className="font-bold text-ink">Donante seleccionado</p><p className="break-words text-xl font-bold text-brand">{selected.full_name}</p>
+      <p className="text-[16px] font-medium text-ink-soft">Donante seleccionado</p><p className="break-words font-bold text-brand">{selected.full_name}</p>
       {(selected.phone || selected.email) && <p className="break-all text-ink">{[selected.phone, selected.email].filter(Boolean).join(" · ")}</p>}
-      <Button type="button" variant="secondary" onClick={() => { setSelected(null); setQuery(""); setResults([]); setSearched(false); }}>Cambiar donante</Button>
+      <Button type="button" variant="ghost" className="px-0 underline" disabled={pending} onClick={() => { setSelected(null); setQuery(""); setResults([]); setSearched(false); }}>Cambiar donante</Button>
     </div> : mode === "registered" ? <div className="space-y-3">
       {!creating ? <>
-        <Field id="donor-query" label="Buscar por nombre, teléfono o correo" hint="Puedes escribir solo una parte del nombre.">
-          <input type="search" value={query} disabled={pending} onChange={(event) => { setQuery(event.target.value); setResults([]); setSearched(false); }} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void search(); } }} className={control} />
-        </Field>
-        <Button type="button" variant="secondary" loading={pending} onClick={() => void search()}>Buscar donante</Button>
+        <label htmlFor="donor-query" className="sr-only">Buscar por nombre, teléfono o correo</label>
+        <div className="flex items-center gap-2">
+          <input id="donor-query" type="search" placeholder="Buscar…" value={query} disabled={pending} onChange={(event) => { setQuery(event.target.value); setResults([]); setSearched(false); }} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); void search(); } }} className={`${control} min-w-0 flex-1`} />
+          <Button type="button" variant="secondary" aria-label="Buscar donante" loading={pending} onClick={() => void search()} className="shrink-0 px-3">Buscar</Button>
+        </div>
+        <p className="text-[16px] text-ink-soft">Nombre, teléfono o correo.</p>
         {searched && !message && <p role="status" className="text-ink-soft">{results.length ? "Selecciona la ficha correcta:" : "No encontramos donantes con esa búsqueda."}</p>}
         <div className="space-y-2">{results.map(optionButton)}</div>
         {more && <p className="text-ink-soft">Hay más coincidencias. Escribe un apellido, teléfono o correo para precisar la búsqueda.</p>}
-        <Button type="button" variant="secondary" disabled={pending} onClick={() => { setCreating(true); setValues({ full_name: query, phone: "", email: "" }); setMatches([]); setConfirmed(false); setMessage(null); setErrors({}); }}>Registrar un donante nuevo</Button>
+        <Button type="button" variant="ghost" aria-label="Registrar un donante nuevo" className="px-0 text-brand underline" disabled={pending} onClick={() => { setCreating(true); setValues({ full_name: query, phone: "", email: "" }); setMatches([]); setConfirmed(false); setMessage(null); setErrors({}); }}>+ Nuevo donante</Button>
       </> : <div className="space-y-3 rounded-lg border border-zinc-300 p-4" onKeyDown={(event) => { if (event.key === "Enter" && event.target instanceof HTMLInputElement && event.target.type !== "checkbox") { event.preventDefault(); void create(); } }}>
         <p className="font-bold text-ink">Registrar un donante nuevo</p>
         <p className="text-ink-soft">Si dona una empresa, usa su nombre. Comprueba primero que no esté registrada.</p>
@@ -87,6 +87,7 @@ export function DonorPicker({ id, name, mode: initialMode, initial, error: serve
         <div className="flex flex-col gap-3"><Button type="button" loading={pending} onClick={() => void create()}>Guardar y seleccionar donante</Button><Button type="button" variant="secondary" disabled={pending} onClick={() => { setCreating(false); setMessage(null); }}>Volver a buscar</Button></div>
       </div>}
     </div> : <p className="text-ink-soft">Se guardará sin asociarla a una persona u organización.</p>}
+    {!creating && <label className="flex min-h-[48px] cursor-pointer items-center gap-3 text-ink"><input type="checkbox" checked={mode === "anonymous"} disabled={pending} onChange={(event) => { setMode(event.target.checked ? "anonymous" : "registered"); setMessage(null); }} className="size-5 shrink-0 accent-brand" />No se conoce el donante</label>}
     {message && <p role="alert" className="font-medium text-red-700">{message}</p>}
     {error && <p id="donor_id-error" role="alert" className="font-medium text-red-700">{error}</p>}
   </fieldset>;

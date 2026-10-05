@@ -17,20 +17,20 @@ export function DonorList({ rows, filters }: { rows: DonorOverview[]; filters: D
         return (
           <li key={donor.id}>
             <Card className="p-0">
-              <Link href={`/donors/${donor.id}`} className="grid min-h-[96px] gap-4 rounded-[12px] p-5 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand sm:grid-cols-2 sm:p-6">
+              <Link href={`/donors/${donor.id}`} className="grid min-h-[96px] gap-2 rounded-[12px] p-4 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand sm:grid-cols-2 sm:gap-4 sm:p-6">
                 <div className="min-w-0 space-y-1">
-                  <p className="break-words text-xl font-bold text-ink">{donor.full_name}</p>
+                  <p className="break-words text-lg font-bold text-brand underline underline-offset-4">{donor.full_name}</p>
                   {donor.phone ? <p className="break-words text-ink">{donor.phone}</p> : donor.email ? <p className="break-words text-ink">{donor.email}</p> : null}
                   <p className="text-ink-soft">{donor.last_donation_date ? `Última donación: ${formatDate(donor.last_donation_date)}` : "Todavía no tiene donaciones registradas."}</p>
                 </div>
                 <div className="min-w-0 space-y-2 sm:text-right">
-                  <p className="text-2xl font-bold text-ink">{filters.sort === "money" ? formatMoney(typeof selectedAmount === "number" ? selectedAmount : 0, filters.currency) : `${count} ${count === 1 ? "donación" : "donaciones"}`}</p>
+                  <p className="text-lg font-bold text-ink">{filters.sort === "money" ? formatMoney(typeof selectedAmount === "number" ? selectedAmount : 0, filters.currency) : `${count} ${count === 1 ? "donación" : "donaciones"}`}</p>
                   {filters.sort === "money" ? <p className="text-ink-soft">{count} {count === 1 ? "donación" : "donaciones"} en total</p> : null}
                   <div className="flex flex-wrap gap-2 sm:justify-end">
                     {moneyLabels.map((label) => <Badge key={label}>{label}</Badge>)}
                     {(donor.supplies_count ?? 0) > 0 ? <Badge>{donor.supplies_count} de insumos</Badge> : null}
                   </div>
-                  <p className="font-bold text-brand">Ver donante →</p>
+                  <p className="sr-only">Ver donante →</p>
                 </div>
               </Link>
             </Card>

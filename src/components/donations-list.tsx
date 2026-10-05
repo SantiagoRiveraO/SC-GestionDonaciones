@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { DonationFilters } from "@/components/donation-filters";
 import { DonationsPagination } from "@/components/donations-pagination";
 import { DonationsTable } from "@/components/donations-table";
-import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -67,24 +66,15 @@ export function DonationsList({
       />
 
       <Card
-        className="space-y-3 border-brand-soft bg-brand-soft p-5"
+        className="space-y-1 border-brand-soft bg-brand-soft px-4 py-3"
         aria-live="polite"
         data-testid="donations-summary"
       >
-        <p className="text-[30px] leading-tight font-bold text-ink">
+        <p className="text-xl leading-tight font-bold text-ink">
           {countLabel}
         </p>
         {totals.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {totals.map((row) => (
-              <Badge
-                key={row}
-                className="bg-surface text-brand"
-              >
-                {row}
-              </Badge>
-            ))}
-          </div>
+          <p className="text-[16px] text-brand">{totals.join(" · ")}</p>
         ) : null}
       </Card>
 

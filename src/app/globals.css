@@ -42,3 +42,20 @@ body {
   color: var(--ink);
   line-height: 1.6;
 }
+
+/* A readable mobile layout without spending the screen on empty padding. */
+@media (max-width: 639px) {
+  .app-content > main {
+    padding: 20px 12px;
+    gap: 20px;
+  }
+}
+
+html {
+  scroll-padding-top: 80px;
+  scroll-padding-bottom: 96px;
+}
+
+input, select, textarea {
+  scroll-margin-top: 90px;
+}

@@ -47,8 +47,8 @@ export function AppNav({ variant }: { variant: "desktop" | "mobile" }) {
         aria-label="Principal"
         className="fixed right-0 bottom-0 left-0 z-40 border-t border-zinc-300 bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_8px_rgba(24,24,27,0.08)] xl:hidden"
       >
-        <ul className="mx-auto grid max-w-6xl grid-cols-[0.8fr_1.25fr_1fr_1fr_1fr] sm:grid-cols-5">
-          {items.map((item) => {
+        <ul className="mx-auto grid max-w-6xl grid-cols-[0.65fr_1.3fr_1.05fr_1.05fr_1fr] sm:grid-cols-5">
+          {[items[0], items[1], items[4], items[2], items[3]].map((item) => {
             const Icon = item.icon;
             const active = isNavActive(item.href, pathname);
 
@@ -64,7 +64,7 @@ export function AppNav({ variant }: { variant: "desktop" | "mobile" }) {
                       : "border-transparent text-ink"
                   }`}
                 >
-                  <Icon aria-hidden className="size-6" />
+                  <span className={item.primary ? "rounded-lg bg-brand px-2 py-1 text-white" : active ? "rounded-lg bg-brand-soft px-2 py-1" : "px-2 py-1"}><Icon aria-hidden className="size-6" /></span>
                   <span className="text-[14px] leading-none tracking-tight whitespace-nowrap sm:text-[15px]">
                     {item.primary ? "Registrar" : item.label}
                   </span>

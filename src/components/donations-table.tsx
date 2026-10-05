@@ -84,7 +84,7 @@ export function DonationsTable({ rows, total }: DonationsTableProps) {
               <Card className="p-0">
                 <Link
                   href={href}
-                  className={`flex min-h-[72px] flex-col justify-between gap-4 rounded-[12px] p-4 sm:flex-row sm:items-center ${focusRing}`}
+                  className={`flex min-h-[72px] flex-col justify-between gap-2 rounded-[12px] p-4 sm:flex-row sm:items-center sm:gap-4 ${focusRing}`}
                 >
                   <DonationRowContent donation={donation} />
                 </Link>

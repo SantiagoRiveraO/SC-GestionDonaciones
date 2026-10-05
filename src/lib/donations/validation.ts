@@ -247,8 +247,8 @@ export function parseDonationInput(
     fieldErrors.notes = "Máximo 2000 caracteres.";
   }
 
-  if (donorMode !== "registered" && donorMode !== "anonymous") fieldErrors.donor_id = "Elige un donante o marca Sin donante identificado.";
-  else if (donorMode === "registered" && !isDonationId(donorIdText)) fieldErrors.donor_id = "Busca y selecciona un donante. Si no se conoce, marca Sin donante identificado.";
+  if (donorMode !== "registered" && donorMode !== "anonymous") fieldErrors.donor_id = "Elige un donante o marca No se conoce el donante.";
+  else if (donorMode === "registered" && !isDonationId(donorIdText)) fieldErrors.donor_id = "Busca y selecciona un donante, o marca No se conoce el donante.";
 
   if (Object.keys(fieldErrors).length > 0) {
     return { ok: false, fieldErrors };

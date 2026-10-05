@@ -50,7 +50,7 @@ export function AddCategoryControl({ onCreated, onBusyChange }: { onCreated: (ca
       setPending(false);
     }
   }
-  if (!open) return <Button type="button" variant="secondary" onClick={() => setOpen(true)}>Agregar nueva categoría</Button>;
+  if (!open) return <Button type="button" variant="ghost" aria-label="Agregar nueva categoría" className="px-0 text-brand underline" onClick={() => setOpen(true)}>+ Nueva categoría</Button>;
   return (
     <div className="space-y-3 rounded-lg border border-zinc-300 p-3">
       <Field id="inline-category-name" label="Nombre de la nueva categoría" hint="Ejemplo: Materiales de construcción." error={error}>
